@@ -1,5 +1,6 @@
 package com.orangemako.minesweeper.board;
 
+import com.orangemako.minesweeper.exceptions.InitializationException;
 import com.orangemako.minesweeper.exceptions.InvalidArgumentException;
 import com.orangemako.minesweeper.exceptions.OutOfOrderException;
 
@@ -16,56 +17,61 @@ public class Board {
     final static int MINES_PLACED = 2;
     final static int GRID_POPULATED = 3;
 
-    private int currentState = BOARD_CREATED;
-    private int numMines;
-    private int dimension;
-    private BoardSquare[][] boardGrid = null;
-    private Set<BoardSquare> mineSquares;
+    private int mCurrentState = BOARD_CREATED;
+    private int mNumMines;
+    private int mDimension;
+    private BoardSquare[][] mBoardGrid = null;
+    private Set<BoardSquare> mMineSquares;
 
     private Board(int dimension, int numMines) {
-        this.dimension = dimension;
-        this.numMines = numMines;
+        mDimension = dimension;
+        mNumMines = numMines;
     }
 
-    private void init() throws OutOfOrderException {
+    private void init() throws OutOfOrderException, InitializationException {
         initBoardGrid();
         initAndPlaceMines();
         calculateNumberedSquares();
     }
 
     private void initBoardGrid() throws OutOfOrderException {
-        if(currentState == BOARD_CREATED) {
-            boardGrid = new BoardSquare[dimension][dimension];
-            currentState = GRID_CREATED;
+        if(mCurrentState == BOARD_CREATED) {
+            mBoardGrid = new BoardSquare[mDimension][mDimension];
+            mCurrentState = GRID_CREATED;
         }
         else {
             throw new OutOfOrderException("Grid creation must follow board creation.");
         }
     }
 
-    private void initAndPlaceMines() throws OutOfOrderException {
-        if(currentState == GRID_CREATED) {
-            mineSquares = new HashSet<>(numMines);
+    private void initAndPlaceMines() throws OutOfOrderException, InitializationException {
+        if(mCurrentState == GRID_CREATED) {
+            mMineSquares = new HashSet<>(mNumMines);
 
             // Create mines
-            for (int i = 0; i < numMines; i++) {
+            for (int i = 0; i < mNumMines; i++) {
                 BoardSquare square;
 
                 do {
-                    int x = new Random().nextInt(dimension);
-                    int y = new Random().nextInt(dimension);
+                    int x = new Random().nextInt(mDimension);
+                    int y = new Random().nextInt(mDimension);
 
                     square = new BoardSquare(x, y);
-                    square.containsMine = true;
-                } while (!mineSquares.add(square));
+                    square.mContainsMine = true;
+                } while (!mMineSquares.add(square));
             }
 
             // Place mines
-            for(BoardSquare square : mineSquares) {
-                boardGrid[square.y][square.x] = square;
+            for(BoardSquare square : mMineSquares) {
+                mBoardGrid[square.y][square.x] = square;
             }
 
-            currentState = MINES_PLACED;
+            if(mNumMines == mMineSquares.size()) {
+                mCurrentState = MINES_PLACED;
+            }
+            else {
+                throw new InitializationException("Number of mines specified and actual mines are unequal.");
+            }
         }
         else {
             throw new OutOfOrderException("Mine placement must follow grid creation");
@@ -73,32 +79,32 @@ public class Board {
     }
 
     private void calculateNumberedSquares() throws OutOfOrderException {
-        if (currentState == MINES_PLACED) {
-            for(BoardSquare mine : mineSquares) {
+        if (mCurrentState == MINES_PLACED) {
+            for(BoardSquare mine : mMineSquares) {
                 int x = mine.x;
                 int y = mine.y;
 
                 int startingY = Math.max(0, y - 1);
                 int startingX = Math.max(0, x - 1);
 
-                for(int i = startingY; i < dimension && i <= y + 1; i++) {
-                    for(int j = startingX; j < dimension && j <= x + 1; j++) {
+                for(int i = startingY; i < mDimension && i <= y + 1; i++) {
+                    for(int j = startingX; j < mDimension && j <= x + 1; j++) {
 
-                        BoardSquare square = boardGrid[i][j];
+                        BoardSquare square = mBoardGrid[i][j];
 
                         if(square == null) {
-                            boardGrid[i][j] = square = new BoardSquare(j, i);
+                            mBoardGrid[i][j] = square = new BoardSquare(j, i);
                         }
                         else if(square.doesContainMine()) {
                             // Don't need to calculate adjacent mines count for
                             // squares containing mines.
                             continue;
                         }
-                        square.adjacentMinesCount++;
+                        square.mAdjacentMinesCount++;
                     }
                 }
             }
-            currentState = GRID_POPULATED;
+            mCurrentState = GRID_POPULATED;
         }
         else {
             throw new OutOfOrderException("Calculation of numbered squares requires mines to be placed");
@@ -106,20 +112,24 @@ public class Board {
     }
 
     public BoardSquare[][] getBoardGrid() {
-        return boardGrid;
+        return mBoardGrid;
     }
 
-    public Set<BoardSquare> getMineSquares() {
-        return mineSquares;
+    public int getDimension() {
+        return mDimension;
+    }
+
+    public int getNumMines() {
+        return mNumMines;
     }
 
     public static class Builder {
-        int dimension;
-        int numMines = DEFAULT_NUM_MINES;
+        int mDimension;
+        int mNumMines = DEFAULT_NUM_MINES;
 
         public Builder dimension(int dimension) throws InvalidArgumentException {
             if(dimension > 0) {
-                this.dimension = dimension;
+                mDimension = dimension;
             }
             else {
                 throw new InvalidArgumentException("Dimension must be greater than 0.");
@@ -129,7 +139,7 @@ public class Board {
 
         public Builder numMines(int numMines) throws InvalidArgumentException {
             if(numMines > 0) {
-                this.numMines = numMines;
+                mNumMines = numMines;
             }
             else {
                 throw new InvalidArgumentException("Mine count must be greater than 0.");
@@ -137,9 +147,9 @@ public class Board {
             return this;
         }
 
-        public Board build() throws InvalidArgumentException, OutOfOrderException {
-            if(dimension > 0 && numMines > 0) {
-                Board board = new Board(dimension, numMines);
+        public Board build() throws InvalidArgumentException, OutOfOrderException, InitializationException {
+            if(mDimension > 0 && mNumMines > 0) {
+                Board board = new Board(mDimension, mNumMines);
                 board.init();
 
                 return board;

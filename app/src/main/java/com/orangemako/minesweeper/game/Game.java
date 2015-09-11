@@ -1,8 +1,8 @@
 package com.orangemako.minesweeper.game;
 
 public class Game {
-    long startTime;
-    long stopTime;
+    long mStartTime;
+    long mStopTime;
 
-    long totalTime = 0;
+    long mTotalTime = 0;
 }

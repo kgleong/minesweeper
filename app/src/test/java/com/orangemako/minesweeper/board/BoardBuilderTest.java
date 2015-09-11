@@ -57,7 +57,6 @@ public class BoardBuilderTest {
             }
         }
 
-        Assert.assertEquals(expectedNumMines, board.getMineSquares().size());
         Assert.assertEquals(expectedNumMines, collectedMines.size());
     }
 
@@ -120,7 +119,7 @@ public class BoardBuilderTest {
                             }
                         }
                     }
-                    Assert.assertEquals(square.adjacentMinesCount, actualAdjacentMines);
+                    Assert.assertEquals(square.mAdjacentMinesCount, actualAdjacentMines);
                 }
             }
         }

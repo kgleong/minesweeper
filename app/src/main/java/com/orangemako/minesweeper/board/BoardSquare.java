@@ -1,8 +1,8 @@
 package com.orangemako.minesweeper.board;
 
 public class BoardSquare {
-    boolean containsMine = false;
-    int adjacentMinesCount = 0;
+    boolean mContainsMine = false;
+    int mAdjacentMinesCount = 0;
 
     int x;
     int y;
@@ -36,6 +36,10 @@ public class BoardSquare {
     }
 
     public boolean doesContainMine() {
-        return containsMine;
+        return mContainsMine;
+    }
+
+    public int getAdjacentMinesCount() {
+        return mAdjacentMinesCount;
     }
 }
