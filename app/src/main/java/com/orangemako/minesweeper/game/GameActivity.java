@@ -25,10 +25,10 @@ public class GameActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        setupBoard();
+        setupGame();
     }
 
-    private void setupBoard() {
+    private void setupGame() {
         try {
             mBoard = (new Board.Builder()).dimension(8).build();
             mBoardLayoutView.setBoard(mBoard);

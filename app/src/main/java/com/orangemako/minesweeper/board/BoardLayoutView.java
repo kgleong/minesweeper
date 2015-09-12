@@ -23,45 +23,40 @@ public class BoardLayoutView extends ViewGroup {
     private Paint mGridLinesPaint;
     private int mGridLineColor;
     private float mGridLineStrokeWidth;
-    private float mDefaultGridLineStrokeWidth;
 
     private Paint mBorderPaint;
     private int mBorderColor;
     private float mBorderStrokeWidth;
-    private float mDefaultBorderStrokeWidth;
 
     public BoardLayoutView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        setupDefaultValues();
-        extractAttributes(attrs);
-
         // Enable drawing for ViewGroup object
         setWillNotDraw(false);
 
+        extractAttributes(attrs);
         setupDrawObjects();
-    }
-
-    private void setupDefaultValues() {
-        mDefaultBorderStrokeWidth = GraphicsUtils.dpToPx(DEFAULT_BORDER_WIDTH, getContext());
-        mDefaultGridLineStrokeWidth = GraphicsUtils.dpToPx(DEFAULT_GRIDLINE_WIDTH, getContext());
     }
 
     private void extractAttributes(AttributeSet attrs) {
         TypedArray attributesArray = getContext().obtainStyledAttributes(attrs, R.styleable.BoardLayoutView);
 
+        // Convert default values to pixels
+        float defaultBorderStrokeWidthInPx = GraphicsUtils.dpToPx(DEFAULT_BORDER_WIDTH, getContext());
+        float defaultGridLineStrokeWidthInPx = GraphicsUtils.dpToPx(DEFAULT_GRIDLINE_WIDTH, getContext());
+
         try {
-            mGridLineColor =
-                    attributesArray.getColor(R.styleable.BoardLayoutView_gridLineColor, DEFAULT_LINE_COLOR);
+            mGridLineColor = attributesArray.getColor(
+                    R.styleable.BoardLayoutView_gridLineColor, DEFAULT_LINE_COLOR);
 
-            mGridLineStrokeWidth =
-                    attributesArray.getDimension(R.styleable.BoardLayoutView_gridLineWidth, mDefaultGridLineStrokeWidth);
+            mGridLineStrokeWidth = attributesArray.getDimension(
+                    R.styleable.BoardLayoutView_gridLineWidth, defaultGridLineStrokeWidthInPx);
 
-            mBorderColor =
-                    attributesArray.getColor(R.styleable.BoardLayoutView_borderColor, DEFAULT_LINE_COLOR);
+            mBorderColor = attributesArray.getColor(
+                    R.styleable.BoardLayoutView_borderColor, DEFAULT_LINE_COLOR);
 
-            mBorderStrokeWidth =
-                    attributesArray.getDimension(R.styleable.BoardLayoutView_borderWidth, mDefaultBorderStrokeWidth);
+            mBorderStrokeWidth = attributesArray.getDimension(
+                    R.styleable.BoardLayoutView_borderWidth, defaultBorderStrokeWidthInPx);
         }
         finally {
            attributesArray.recycle();
