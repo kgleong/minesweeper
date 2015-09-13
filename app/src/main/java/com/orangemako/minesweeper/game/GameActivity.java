@@ -2,6 +2,8 @@ package com.orangemako.minesweeper.game;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,8 +19,10 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
     @Bind(R.id.board_layout_view) BoardLayoutView mBoardLayoutView;
     @Bind(R.id.remaining_flags_text_view) TextView mRemainingFlagsTextView;
     @Bind(R.id.elapsed_time_text_view) TextView mElapsedTimeTextView;
+    @Bind(R.id.finish_button) Button mFinishButton;
 
     private Game mGame;
+    private int mElapsedTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +31,7 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
         ButterKnife.bind(this);
 
         setupGame();
+        setupViews();
     }
 
     private void setupGame() {
@@ -40,6 +45,29 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
             String errorMessage = getResources().getString(R.string.board_initialization_error);
             Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void setupViews() {
+        mFinishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: Calculate game results
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGame.startTimer();
+        mElapsedTime = mGame.getElapsedTime();
+        updateTimeElapsed(mElapsedTime);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mGame.stopTimer();
     }
 
     @Override
@@ -58,7 +86,7 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
     }
 
     @Override
-    public void updateTimeElapsed(int totalTime) {
-        mElapsedTimeTextView.setText(String.valueOf(totalTime));
+    public void updateTimeElapsed(int elapsedTime) {
+        mElapsedTimeTextView.setText(String.valueOf(elapsedTime));
     }
 }

@@ -25,10 +25,14 @@ public class TileView extends View {
     public static final int FLAGGED_AS_MINE = 1;
     public static final int UNCOVERED = 2;
 
+    private TileViewParent mParent;
     private LevelListDrawable mDrawableContainer;
     private BoardSquare mBoardSquare;
     private TileViewListener mListener;
     private boolean mDoesContainMine;
+    private int mXCoordinate;
+    private int mYCoordinate;
+    private int mAdjacentMineCount;
 
     static Map<Integer, Integer> sMineCountToColorMap = new HashMap<>();
 
@@ -43,29 +47,50 @@ public class TileView extends View {
         sMineCountToColorMap.put(8, Color.RED);
     }
 
-    public TileView(Context context, Game game, int x, int y) throws InvalidArgumentException {
+    public TileView(Context context, TileViewParent parent, Game game, int x, int y) throws InvalidArgumentException {
         super(context);
 
+        mParent = parent;
         mListener = game;
         mBoardSquare = game.getBoard().getBoardGrid()[y][x];
-        mDoesContainMine = doesContainMine();
+        mXCoordinate = x;
+        mYCoordinate = y;
+        setDoesContainMine();
+        setAdjacentMineCount();
 
         setupBackgrounds();
         setupListeners();
+    }
+
+    private void setDoesContainMine() {
+        if(mBoardSquare != null) {
+            mDoesContainMine = mBoardSquare.doesContainMine();
+        }
+        else {
+            mDoesContainMine = false;
+        }
+    }
+
+    private void setAdjacentMineCount() {
+        if(mBoardSquare == null) {
+            mAdjacentMineCount = 0;
+        }
+        else {
+            mAdjacentMineCount = mBoardSquare.getAdjacentMinesCount();
+        }
     }
 
     private void setupListeners() {
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!mIsGameEnded) {
+                if (!mIsGameEnded) {
                     // Toggle mine flag.  The drawable container level is equivalent to view state.
                     switch (mDrawableContainer.getLevel()) {
                         case COVERED:
-                            if(mListener.flagTileRequested()) {
+                            if (mListener.flagTileRequested()) {
                                 mDrawableContainer.setLevel(FLAGGED_AS_MINE);
-                            }
-                            else {
+                            } else {
                                 String errorMessage = getContext().getResources().getString(R.string.over_flag_limit_error);
                                 Toast.makeText(view.getContext(), errorMessage, Toast.LENGTH_SHORT).show();
                             }
@@ -82,14 +107,17 @@ public class TileView extends View {
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if(!mIsGameEnded) {
+                if (!mIsGameEnded) {
                     // Uncover tile.
                     switch (mDrawableContainer.getLevel()) {
                         case COVERED:
                             mListener.uncoverTileRequested(mDoesContainMine);
 
-                            if(mDoesContainMine) {
+                            if (mDoesContainMine) {
                                 mIsGameEnded = true;
+                            }
+                            else if (TileView.this.mAdjacentMineCount == 0) {
+                                 mParent.uncoverAdjacentBlankTiles(TileView.this);
                             }
 
                             mDrawableContainer.setLevel(UNCOVERED);
@@ -144,11 +172,9 @@ public class TileView extends View {
             int textColor = 0;
 
             if(mBoardSquare != null) {
-                int adjacentMinesCount = mBoardSquare.getAdjacentMinesCount();
-
-                if(adjacentMinesCount > 0) {
-                    textColor = sMineCountToColorMap.get(adjacentMinesCount);
-                    adjacentMineCountText = String.valueOf(adjacentMinesCount);
+                if(mAdjacentMineCount > 0) {
+                    textColor = sMineCountToColorMap.get(mAdjacentMineCount);
+                    adjacentMineCountText = String.valueOf(mAdjacentMineCount);
                 }
             }
 
@@ -157,19 +183,33 @@ public class TileView extends View {
         return uncoveredDrawable;
     }
 
-    boolean doesContainMine() {
-        boolean result = false;
+    public int getXCoordinate() {
+        return mXCoordinate;
+    }
 
-        if(mBoardSquare != null) {
-            result = mBoardSquare.doesContainMine();
-        }
+    public int getYCoordinate() {
+        return mYCoordinate;
+    }
 
-        return result;
+    public int getAdjacentMineCount() {
+        return mAdjacentMineCount;
+    }
+
+    public boolean doesContainMine() {
+        return mDoesContainMine;
+    }
+
+    public LevelListDrawable getDrawableContainer() {
+        return mDrawableContainer;
     }
 
     public interface TileViewListener {
         void uncoverTileRequested(boolean doesContainMine);
         boolean flagTileRequested();
         void unflagTileRequested();
+    }
+
+    public interface TileViewParent {
+        void uncoverAdjacentBlankTiles(TileView tileView);
     }
 }

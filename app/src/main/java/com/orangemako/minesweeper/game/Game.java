@@ -8,7 +8,7 @@ import com.orangemako.minesweeper.tile.TileView;
 
 public class Game implements TileView.TileViewListener {
     private long mStartTime;
-    private int mTotalTime = 0;
+    private int mElapsedTime = 0;
     private GameListener mListener;
 
     // Game state
@@ -29,7 +29,7 @@ public class Game implements TileView.TileViewListener {
         mFlagsRemaining = mBoard.getNumMines();
         mListener = listener;
         mListener.updateFlagsRemainingCount(mFlagsRemaining);
-        mListener.updateTimeElapsed(mTotalTime);
+        mListener.updateTimeElapsed(mElapsedTime);
 
         startTimer();
     }
@@ -44,15 +44,15 @@ public class Game implements TileView.TileViewListener {
 
     public void stopTimer() {
         if(mStartTime > 0) {
-            mTotalTime += System.currentTimeMillis() - mStartTime;
+            mElapsedTime += System.currentTimeMillis() - mStartTime;
 
             // Reset timer
             mStartTime = 0;
         }
     }
 
-    public long getTotalTime() {
-        return mTotalTime;
+    public int getElapsedTime() {
+        return mElapsedTime;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class Game implements TileView.TileViewListener {
     }
 
     public interface GameListener {
-        void updateTimeElapsed(int totalTime);
+        void updateTimeElapsed(int elapsedTime);
         void updateFlagsRemainingCount(int flagsRemaining);
         void onLoss();
         void onWin();

@@ -16,7 +16,11 @@ import com.orangemako.minesweeper.game.Game;
 import com.orangemako.minesweeper.tile.TileView;
 import com.orangemako.minesweeper.utilities.GraphicsUtils;
 
-public class BoardLayoutView extends ViewGroup {
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+
+public class BoardLayoutView extends ViewGroup implements TileView.TileViewParent {
     static final int DEFAULT_LINE_COLOR = Color.BLACK;
 
     // In density independent pixels (dp)
@@ -33,6 +37,9 @@ public class BoardLayoutView extends ViewGroup {
 
     private Board mBoard;
     private Game mGame;
+
+    private Set<TileView> mTileViewsWithMines = new HashSet<>();
+    private TileView[][] mTileViewsGrid;
 
     public BoardLayoutView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -168,16 +175,59 @@ public class BoardLayoutView extends ViewGroup {
 
     private void addBoardSquareTiles() throws InitializationException, InvalidArgumentException {
         int dimension = mBoard.getDimension();
+        mTileViewsGrid = new TileView[dimension][dimension];
 
         for(int i = 0; i < dimension; i++) {
             for(int j = 0; j < dimension; j++) {
-                addView(new TileView(getContext(), mGame, j, i));
+                TileView tileView = new TileView(getContext(), this, mGame, j, i);
+                addView(tileView);
+
+                BoardSquare boardSquare = mBoard.getBoardGrid()[i][j];
+
+                if(boardSquare != null && boardSquare.doesContainMine()) {
+                    mTileViewsWithMines.add(tileView);
+                }
+
+                mTileViewsGrid[i][j] = tileView;
             }
         }
 
         if(getChildCount() != Math.pow(dimension, 2)) {
             Log.e(BoardLayoutView.class.getName(), "Tile count must be equal to dimension ^ 2.");
             throw new InitializationException();
+        }
+    }
+
+    @Override
+    public void uncoverAdjacentBlankTiles(TileView tileView) {
+        Set<TileView> visited = new HashSet<>();
+        Stack<TileView> queue = new Stack<>();
+
+        visited.add(tileView);
+        queue.add(tileView);
+
+        int dimension = mBoard.getDimension();
+
+        while(!queue.empty()) {
+            TileView currentTile = queue.pop();
+
+            int x = currentTile.getXCoordinate();
+            int y = currentTile.getYCoordinate();
+
+            int startingY = Math.max(0, y - 1);
+            int startingX = Math.max(0, x - 1);
+
+            for(int i = startingY; i < dimension && i <= y + 1; i++) {
+                for (int j = startingX; j < dimension && j <= x + 1; j++) {
+                    TileView adjacentTile = mTileViewsGrid[i][j];
+                    boolean added = visited.add(adjacentTile);
+
+                    if(added && !adjacentTile.doesContainMine() && adjacentTile.getAdjacentMineCount() == 0) {
+                        adjacentTile.getDrawableContainer().setLevel(TileView.UNCOVERED);
+                        queue.add(adjacentTile);
+                    }
+                }
+            }
         }
     }
 }

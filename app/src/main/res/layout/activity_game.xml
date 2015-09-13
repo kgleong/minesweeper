@@ -29,11 +29,20 @@
         android:gravity="right"
         />
 
+    <Button
+        android:id="@+id/finish_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/elapsed_time_text_view"
+        android:text="@string/finish_button"
+        android:textAllCaps="true"
+        />
+
     <com.orangemako.minesweeper.board.BoardLayoutView
         android:id="@+id/board_layout_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/remaining_flags_text_view"
+        android:layout_below="@id/finish_button"
         android:background="@android:color/darker_gray"
         custom:gridLineColor="@color/blue_400"
         custom:gridLineWidth="3dp"
