@@ -2,6 +2,7 @@
     <string name="app_name">Minesweeper</string>
 
     <!--Error Messages-->
-    <string name="uncover_tile_error">Remove mine flag before uncovering square.</string>
-    <string name="board_initialization_error">There was a problem setting up the game.</string>
+    <string name="over_flag_limit_error">Mine flag limit reached.  Remove at least one mine flag</string>
+    <string name="uncover_tile_error">Must remove mine flag</string>
+    <string name="board_initialization_error">There was a problem setting up the game</string>
 </resources>

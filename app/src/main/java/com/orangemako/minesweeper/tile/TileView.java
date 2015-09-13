@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TileView extends View {
+    private static boolean mIsGameEnded = false;
+
     // Board Square states
     public static final int COVERED = 0;
     public static final int FLAGGED_AS_MINE = 1;
@@ -25,7 +27,8 @@ public class TileView extends View {
 
     private LevelListDrawable mDrawableContainer;
     private BoardSquare mBoardSquare;
-    private Game mGame;
+    private TileViewListener mListener;
+    private boolean mDoesContainMine;
 
     static Map<Integer, Integer> sMineCountToColorMap = new HashMap<>();
 
@@ -40,12 +43,12 @@ public class TileView extends View {
         sMineCountToColorMap.put(8, Color.RED);
     }
 
-
     public TileView(Context context, Game game, int x, int y) throws InvalidArgumentException {
         super(context);
 
-        mGame = game;
+        mListener = game;
         mBoardSquare = game.getBoard().getBoardGrid()[y][x];
+        mDoesContainMine = doesContainMine();
 
         setupBackgrounds();
         setupListeners();
@@ -55,15 +58,23 @@ public class TileView extends View {
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Toggle mine flag.  The drawable container level is equivalent to view state.
-                switch (mDrawableContainer.getLevel()) {
-                    case COVERED:
-                        mDrawableContainer.setLevel(FLAGGED_AS_MINE);
-                        break;
-                    case FLAGGED_AS_MINE:
-                        mDrawableContainer.setLevel(COVERED);
-                        break;
+                if(!mIsGameEnded) {
+                    // Toggle mine flag.  The drawable container level is equivalent to view state.
+                    switch (mDrawableContainer.getLevel()) {
+                        case COVERED:
+                            if(mListener.flagTileRequested()) {
+                                mDrawableContainer.setLevel(FLAGGED_AS_MINE);
+                            }
+                            else {
+                                String errorMessage = getContext().getResources().getString(R.string.over_flag_limit_error);
+                                Toast.makeText(view.getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                            }
+                            break;
 
+                        case FLAGGED_AS_MINE:
+                            mListener.unflagTileRequested();
+                            mDrawableContainer.setLevel(COVERED);
+                    }
                 }
             }
         });
@@ -71,15 +82,23 @@ public class TileView extends View {
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                // Uncover tile.
-                switch (mDrawableContainer.getLevel()) {
-                    case COVERED:
-                        mDrawableContainer.setLevel(UNCOVERED);
-                        break;
-                    case FLAGGED_AS_MINE:
-                        String errorMessage = getContext().getResources().getString(R.string.uncover_tile_error);
-                        Toast.makeText(view.getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-                        break;
+                if(!mIsGameEnded) {
+                    // Uncover tile.
+                    switch (mDrawableContainer.getLevel()) {
+                        case COVERED:
+                            mListener.uncoverTileRequested(mDoesContainMine);
+
+                            if(mDoesContainMine) {
+                                mIsGameEnded = true;
+                            }
+
+                            mDrawableContainer.setLevel(UNCOVERED);
+
+                            break;
+                        case FLAGGED_AS_MINE:
+                            String errorMessage = getContext().getResources().getString(R.string.uncover_tile_error);
+                            Toast.makeText(view.getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                    }
                 }
 
                 // Return true to consume event.
@@ -117,7 +136,7 @@ public class TileView extends View {
     private Drawable setupUncoveredTile() {
         Drawable uncoveredDrawable;
 
-        if(mBoardSquare != null && mBoardSquare.doesContainMine()) {
+        if(mDoesContainMine) {
             uncoveredDrawable = new ConcentricCirclesDrawable(new int[]{Color.RED, Color.BLACK}, 0.50f);
         }
         else {
@@ -136,5 +155,21 @@ public class TileView extends View {
             uncoveredDrawable = new TextDrawable(adjacentMineCountText, textColor);
         }
         return uncoveredDrawable;
+    }
+
+    boolean doesContainMine() {
+        boolean result = false;
+
+        if(mBoardSquare != null) {
+            result = mBoardSquare.doesContainMine();
+        }
+
+        return result;
+    }
+
+    public interface TileViewListener {
+        void uncoverTileRequested(boolean doesContainMine);
+        boolean flagTileRequested();
+        void unflagTileRequested();
     }
 }
