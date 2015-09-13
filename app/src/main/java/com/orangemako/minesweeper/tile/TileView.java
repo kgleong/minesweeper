@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TileView extends View {
-    private static boolean mIsGameEnded = false;
-
     // Board Square states
     public static final int COVERED = 0;
     public static final int FLAGGED_AS_MINE = 1;
@@ -29,6 +27,7 @@ public class TileView extends View {
     private LevelListDrawable mDrawableContainer;
     private BoardSquare mBoardSquare;
     private TileViewListener mListener;
+    private Game mGame;
     private boolean mDoesContainMine;
     private int mXCoordinate;
     private int mYCoordinate;
@@ -52,6 +51,7 @@ public class TileView extends View {
 
         mParent = parent;
         mListener = game;
+        mGame = game;
         mBoardSquare = game.getBoard().getBoardGrid()[y][x];
         mXCoordinate = x;
         mYCoordinate = y;
@@ -84,7 +84,7 @@ public class TileView extends View {
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mIsGameEnded) {
+                if (!mGame.isIsGameEnded()) {
                     // Toggle mine flag.  The drawable container level is equivalent to view state.
                     switch (mDrawableContainer.getLevel()) {
                         case COVERED:
@@ -107,14 +107,14 @@ public class TileView extends View {
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if (!mIsGameEnded) {
+                if (!mGame.isIsGameEnded()) {
                     // Uncover tile.
                     switch (mDrawableContainer.getLevel()) {
                         case COVERED:
                             mListener.uncoverTileRequested(mDoesContainMine);
 
                             if (mDoesContainMine) {
-                                mIsGameEnded = true;
+                                mGame.setIsGameEnded(true);
                             }
                             else if (TileView.this.mAdjacentMineCount == 0) {
                                  mParent.uncoverAdjacentBlankTiles(TileView.this);

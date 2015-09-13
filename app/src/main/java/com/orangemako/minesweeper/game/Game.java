@@ -7,6 +7,8 @@ import com.orangemako.minesweeper.exceptions.OutOfOrderException;
 import com.orangemako.minesweeper.tile.TileView;
 
 public class Game implements TileView.TileViewListener {
+    private static boolean mIsGameEnded = false;
+
     private long mStartTime;
     private int mElapsedTime = 0;
     private GameListener mListener;
@@ -49,6 +51,14 @@ public class Game implements TileView.TileViewListener {
             // Reset timer
             mStartTime = 0;
         }
+    }
+
+    public static boolean isIsGameEnded() {
+        return mIsGameEnded;
+    }
+
+    public static void setIsGameEnded(boolean isGameEnded) {
+        Game.mIsGameEnded = mIsGameEnded;
     }
 
     public int getElapsedTime() {
