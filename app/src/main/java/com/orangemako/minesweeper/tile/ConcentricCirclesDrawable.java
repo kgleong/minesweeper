@@ -10,11 +10,10 @@ import android.graphics.drawable.Drawable;
 import com.orangemako.minesweeper.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ConcentricCirclesDrawable extends Drawable {
-    static final float DEFAULT_FILL_PERCENT = 0.95f;
+    static final float DEFAULT_FILL_PERCENT = 0.65f;
 
     private Context mContext;
 
@@ -33,7 +32,7 @@ public class ConcentricCirclesDrawable extends Drawable {
      *                      ring (index 0) to the center ring (index n)
      * @param fillPercent percent of space this drawable should take up within its bounds.
      */
-    public ConcentricCirclesDrawable(Context context, List<Integer> ringColorList, Float fillPercent) {
+    public ConcentricCirclesDrawable(Context context, int[] ringColorList, Float fillPercent) {
         this.mContext = context;
 
         if(ringColorList == null) {
@@ -41,7 +40,7 @@ public class ConcentricCirclesDrawable extends Drawable {
             int defaultOuterRingColor = context.getResources().getColor(R.color.light_blue_500);
             int defaultInnerRingColor = context.getResources().getColor(R.color.light_blue_300);
 
-            ringColorList = Arrays.asList(defaultOuterRingColor, defaultInnerRingColor);
+            ringColorList = new int[]{defaultOuterRingColor, defaultInnerRingColor};
         }
 
         if(fillPercent != null) {
@@ -51,7 +50,7 @@ public class ConcentricCirclesDrawable extends Drawable {
         setupDrawObjects(ringColorList);
     }
 
-    private void setupDrawObjects(List<Integer> ringColorList) {
+    private void setupDrawObjects(int[] ringColorList) {
         for (int ringColor : ringColorList) {
             Paint ringPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             ringPaint.setStyle(Paint.Style.FILL);

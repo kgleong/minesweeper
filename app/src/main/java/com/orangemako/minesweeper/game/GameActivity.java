@@ -2,6 +2,7 @@ package com.orangemako.minesweeper.game;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.orangemako.minesweeper.R;
@@ -16,7 +17,7 @@ public class GameActivity extends AppCompatActivity {
     @Bind(R.id.board_layout_view)
     BoardLayoutView mBoardLayoutView;
 
-    private Board mBoard;
+    private Game mGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +31,14 @@ public class GameActivity extends AppCompatActivity {
 
     private void setupGame() {
         try {
-            mBoard = (new Board.Builder()).dimension(8).build();
-            mBoardLayoutView.setBoard(mBoard);
+            mGame = new Game(Board.DEFAULT_DIMENSION, Board.DEFAULT_NUM_MINES);
+
+            mBoardLayoutView = (BoardLayoutView) findViewById(R.id.board_layout_view);
+            mBoardLayoutView.setupBoard(mGame);
         } catch (Exception e) {
             String errorMessage = getResources().getString(R.string.board_initialization_error);
             Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+            Log.e("df", e.getMessage());
         }
     }
 }

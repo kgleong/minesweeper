@@ -10,25 +10,14 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".GameActivity">
 
-    <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="#000"
-        />
-    <com.orangemako.minesweeper.tile.TileImageView
-        android:id="@+id/myimageview"
-        android:layout_width="50dp"
-        android:layout_height="50dp"/>
-
     <com.orangemako.minesweeper.board.BoardLayoutView
         android:id="@+id/board_layout_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/myimageview"
         android:background="@android:color/darker_gray"
-        custom:gridLineColor="@android:color/holo_blue_dark"
+        custom:gridLineColor="@color/blue_400"
         custom:gridLineWidth="3dp"
-        custom:borderColor="@android:color/black"
+        custom:borderColor="@color/blue_400"
         custom:borderWidth="2dp"
         />
 </RelativeLayout>

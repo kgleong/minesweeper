@@ -9,7 +9,8 @@ import java.util.Random;
 import java.util.Set;
 
 public class Board {
-    final static int DEFAULT_NUM_MINES = 10;
+    public static final int DEFAULT_DIMENSION = 8;
+    public static final int DEFAULT_NUM_MINES = 10;
 
     // Board creation phase states
     final static int BOARD_CREATED = 0;
@@ -124,7 +125,7 @@ public class Board {
     }
 
     public static class Builder {
-        int mDimension;
+        int mDimension = DEFAULT_DIMENSION;
         int mNumMines = DEFAULT_NUM_MINES;
 
         public Builder dimension(int dimension) throws InvalidArgumentException {
