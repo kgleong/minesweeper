@@ -2,12 +2,11 @@ package com.orangemako.minesweeper.tile;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-
-import com.orangemako.minesweeper.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,25 +19,24 @@ public class ConcentricCirclesDrawable extends Drawable {
     private float mfillPercent = DEFAULT_FILL_PERCENT;
     private List<Paint> mRingPaintList = new ArrayList<>();
 
-    public ConcentricCirclesDrawable(Context context) {
-        this(context, null, null);
+    private ConcentricCirclesDrawableState mDrawableState;
+
+    public ConcentricCirclesDrawable() {
+        this(null, null);
     }
 
     /**
      * Creates concentric circles using the supplied color list.
      *
-     * @param context
      * @param ringColorList list of colors assigned from the outside
      *                      ring (index 0) to the center ring (index n)
      * @param fillPercent percent of space this drawable should take up within its bounds.
      */
-    public ConcentricCirclesDrawable(Context context, int[] ringColorList, Float fillPercent) {
-        this.mContext = context;
-
+    public ConcentricCirclesDrawable(int[] ringColorList, Float fillPercent) {
         if(ringColorList == null) {
             // Assign default colors
-            int defaultOuterRingColor = context.getResources().getColor(R.color.light_blue_500);
-            int defaultInnerRingColor = context.getResources().getColor(R.color.light_blue_300);
+            int defaultOuterRingColor = Color.GREEN;
+            int defaultInnerRingColor = Color.YELLOW;
 
             ringColorList = new int[]{defaultOuterRingColor, defaultInnerRingColor};
         }
@@ -48,6 +46,15 @@ public class ConcentricCirclesDrawable extends Drawable {
         }
 
         setupDrawObjects(ringColorList);
+        saveConstantState(ringColorList);
+    }
+
+    private void saveConstantState(int[] ringColorList) {
+        if(mDrawableState == null) {
+            mDrawableState = new ConcentricCirclesDrawableState();
+            mDrawableState.mfillPercent = mfillPercent;
+            mDrawableState.mRingColorList = ringColorList;
+        }
     }
 
     private void setupDrawObjects(int[] ringColorList) {
@@ -94,5 +101,25 @@ public class ConcentricCirclesDrawable extends Drawable {
     @Override
     public int getOpacity() {
         return 0;
+    }
+
+    @Override
+    public ConstantState getConstantState() {
+        return mDrawableState;
+    }
+
+    private class ConcentricCirclesDrawableState extends ConstantState {
+        private float mfillPercent;
+        private int[] mRingColorList;
+
+        @Override
+        public Drawable newDrawable() {
+            return new ConcentricCirclesDrawable(mRingColorList, mfillPercent);
+        }
+
+        @Override
+        public int getChangingConfigurations() {
+            return 0;
+        }
     }
 }

@@ -35,6 +35,8 @@ public class BeveledTileDrawable extends Drawable {
     private Path mBottomBevelPath;
     private Path mRighBevelPath;
 
+    private BeveledTileDrawableState mDrawableState;
+
     public BeveledTileDrawable(int[] colorList) throws InvalidArgumentException {
         if(colorList.length != REQUIRED_COLOR_COUNT) {
             throw new InvalidArgumentException("Must provide 5 colors.");
@@ -42,6 +44,14 @@ public class BeveledTileDrawable extends Drawable {
 
         mColorList = colorList;
         setupDrawObjects();
+        saveConstantState();
+    }
+
+    private void saveConstantState() {
+        if(mDrawableState == null) {
+            mDrawableState = new BeveledTileDrawableState();
+            mDrawableState.mColorList = mColorList;
+        }
     }
 
     private void setupDrawObjects() {
@@ -161,5 +171,28 @@ public class BeveledTileDrawable extends Drawable {
     @Override
     public int getOpacity() {
         return 0;
+    }
+
+    @Override
+    public ConstantState getConstantState() {
+        return mDrawableState;
+    }
+
+    private class BeveledTileDrawableState extends ConstantState {
+        int[] mColorList;
+
+        @Override
+        public Drawable newDrawable() {
+            try {
+                return new BeveledTileDrawable(mColorList);
+            } catch (InvalidArgumentException e) {
+                return null;
+            }
+        }
+
+        @Override
+        public int getChangingConfigurations() {
+            return 0;
+        }
     }
 }

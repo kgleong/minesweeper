@@ -3,6 +3,7 @@ package com.orangemako.minesweeper.tile;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.view.View;
 import android.widget.Toast;
@@ -106,13 +107,13 @@ public class TileView extends View {
             Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
         }
 
-        //LayerDrawable flaggedMineDrawable = new LayerDrawable(new Drawable[]{new BeveledTileDrawable(tileColors), new ConcentricCirclesDrawable(getContext())});
-        mDrawableContainer.addLevel(0, FLAGGED_AS_MINE, new ConcentricCirclesDrawable(getContext()));
+        LayerDrawable flaggedMineDrawable = new LayerDrawable(new Drawable[]{new BeveledTileDrawable(tileColors), new ConcentricCirclesDrawable()});
+        mDrawableContainer.addLevel(0, FLAGGED_AS_MINE, flaggedMineDrawable);
 
         Drawable uncoveredDrawable;
 
         if(mBoardSquare != null && mBoardSquare.doesContainMine()) {
-            uncoveredDrawable = new ConcentricCirclesDrawable(getContext(), new int[]{Color.MAGENTA, Color.RED, Color.YELLOW}, null);
+            uncoveredDrawable = new ConcentricCirclesDrawable(new int[]{Color.MAGENTA, Color.RED, Color.YELLOW}, null);
         }
         else {
             String adjacentMineCountText = "";
