@@ -230,4 +230,29 @@ public class BoardLayoutView extends ViewGroup implements TileView.TileViewParen
             }
         }
     }
+
+    public boolean calculateResult() {
+        boolean didWin = true;
+
+        for(int i = 0; i < mBoard.getDimension(); i++) {
+            for(int j = 0; j < mBoard.getDimension(); j++) {
+                TileView tileView = mTileViewsGrid[i][j];
+
+                boolean isCovered = tileView.getDrawableContainer().getLevel() == TileView.COVERED;
+
+                if(isCovered) {
+                    if(tileView.doesContainMine()) {
+                        didWin = false;
+                    }
+
+                    tileView.getDrawableContainer().setLevel(TileView.UNCOVERED);
+
+                    if(!didWin){
+                        break;
+                    }
+                }
+            }
+        }
+        return didWin;
+    }
 }

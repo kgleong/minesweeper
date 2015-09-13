@@ -20,6 +20,7 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
     @Bind(R.id.remaining_flags_text_view) TextView mRemainingFlagsTextView;
     @Bind(R.id.elapsed_time_text_view) TextView mElapsedTimeTextView;
     @Bind(R.id.finish_button) Button mFinishButton;
+    @Bind(R.id.reset_button) Button mResetButton;
 
     private Game mGame;
     private int mElapsedTime;
@@ -51,7 +52,23 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
         mFinishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Calculate game results
+                // TODO: Refactor to use a GameState object instead.
+                boolean result = mBoardLayoutView.calculateResult();
+                String message;
+                if(result) {
+                    message = "YOU WIN!";
+                }
+                else {
+                    message = "YOU'RE DEAD";
+                }
+                Toast.makeText(GameActivity.this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mResetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               setupGame();
             }
         });
     }
