@@ -84,7 +84,7 @@ public class TileView extends View {
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mGame.isIsGameEnded()) {
+                if (!mGame.isGameEnded()) {
                     // Toggle mine flag.  The drawable container level is equivalent to view state.
                     switch (mDrawableContainer.getLevel()) {
                         case COVERED:
@@ -107,7 +107,7 @@ public class TileView extends View {
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if (!mGame.isIsGameEnded()) {
+                if (!mGame.isGameEnded()) {
                     // Uncover tile.
                     switch (mDrawableContainer.getLevel()) {
                         case COVERED:
@@ -193,6 +193,10 @@ public class TileView extends View {
 
     public int getAdjacentMineCount() {
         return mAdjacentMineCount;
+    }
+
+    public int getState() {
+        return mDrawableContainer.getLevel();
     }
 
     public boolean doesContainMine() {

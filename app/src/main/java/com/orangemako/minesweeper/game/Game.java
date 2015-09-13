@@ -53,7 +53,7 @@ public class Game implements TileView.TileViewListener {
         }
     }
 
-    public static boolean isIsGameEnded() {
+    public boolean isGameEnded() {
         return mIsGameEnded;
     }
 

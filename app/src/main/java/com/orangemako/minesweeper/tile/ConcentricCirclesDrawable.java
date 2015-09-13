@@ -12,6 +12,8 @@ import java.util.List;
 
 public class ConcentricCirclesDrawable extends Drawable {
     static final float DEFAULT_FILL_PERCENT = 0.55f;
+    static final int DEFAULT_OUTER_RING_COLOR = Color.GREEN;
+    static final int DEFAULT_INNER_RING_COLOR = Color.YELLOW;
 
     private float mfillPercent = DEFAULT_FILL_PERCENT;
     private List<Paint> mRingPaintList = new ArrayList<>();
@@ -31,11 +33,7 @@ public class ConcentricCirclesDrawable extends Drawable {
      */
     public ConcentricCirclesDrawable(int[] ringColorList, Float fillPercent) {
         if(ringColorList == null) {
-            // Assign default colors
-            int defaultOuterRingColor = Color.GREEN;
-            int defaultInnerRingColor = Color.YELLOW;
-
-            ringColorList = new int[]{defaultOuterRingColor, defaultInnerRingColor};
+            ringColorList = new int[]{DEFAULT_OUTER_RING_COLOR, DEFAULT_INNER_RING_COLOR};
         }
 
         if(fillPercent != null) {

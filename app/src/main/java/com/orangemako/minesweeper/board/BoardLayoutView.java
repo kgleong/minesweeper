@@ -157,11 +157,6 @@ public class BoardLayoutView extends ViewGroup implements TileView.TileViewParen
         }
     }
 
-    @Override
-    public LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new MarginLayoutParams(getContext(), attrs);
-    }
-
     public void setupBoard(Game game) throws InitializationException, InvalidArgumentException {
         this.mGame = game;
         this.mBoard = game.getBoard();
