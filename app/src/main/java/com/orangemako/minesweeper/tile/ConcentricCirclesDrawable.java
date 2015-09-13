@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConcentricCirclesDrawable extends Drawable {
-    static final float DEFAULT_FILL_PERCENT = 0.65f;
+    static final float DEFAULT_FILL_PERCENT = 0.55f;
 
     private Context mContext;
 

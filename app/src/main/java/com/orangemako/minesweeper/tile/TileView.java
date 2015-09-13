@@ -113,7 +113,7 @@ public class TileView extends View {
         Drawable uncoveredDrawable;
 
         if(mBoardSquare != null && mBoardSquare.doesContainMine()) {
-            uncoveredDrawable = new ConcentricCirclesDrawable(new int[]{Color.MAGENTA, Color.RED, Color.YELLOW}, null);
+            uncoveredDrawable = new ConcentricCirclesDrawable(new int[]{Color.RED, Color.BLACK}, 0.50f);
         }
         else {
             String adjacentMineCountText = "";

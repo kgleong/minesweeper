@@ -2,7 +2,6 @@ package com.orangemako.minesweeper.game;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.orangemako.minesweeper.R;
@@ -23,7 +22,6 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
         ButterKnife.bind(this);
 
         setupGame();
@@ -35,10 +33,10 @@ public class GameActivity extends AppCompatActivity {
 
             mBoardLayoutView = (BoardLayoutView) findViewById(R.id.board_layout_view);
             mBoardLayoutView.setupBoard(mGame);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             String errorMessage = getResources().getString(R.string.board_initialization_error);
             Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
-            Log.e("df", e.getMessage());
         }
     }
 }
