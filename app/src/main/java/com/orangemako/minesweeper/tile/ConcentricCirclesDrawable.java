@@ -1,6 +1,5 @@
 package com.orangemako.minesweeper.tile;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -13,8 +12,6 @@ import java.util.List;
 
 public class ConcentricCirclesDrawable extends Drawable {
     static final float DEFAULT_FILL_PERCENT = 0.55f;
-
-    private Context mContext;
 
     private float mfillPercent = DEFAULT_FILL_PERCENT;
     private List<Paint> mRingPaintList = new ArrayList<>();

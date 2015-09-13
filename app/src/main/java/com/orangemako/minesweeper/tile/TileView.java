@@ -56,7 +56,7 @@ public class TileView extends View {
             @Override
             public void onClick(View view) {
                 // Toggle mine flag.  The drawable container level is equivalent to view state.
-                switch(mDrawableContainer.getLevel()) {
+                switch (mDrawableContainer.getLevel()) {
                     case COVERED:
                         mDrawableContainer.setLevel(FLAGGED_AS_MINE);
                         break;
@@ -72,7 +72,7 @@ public class TileView extends View {
             @Override
             public boolean onLongClick(View view) {
                 // Uncover tile.
-                switch(mDrawableContainer.getLevel()) {
+                switch (mDrawableContainer.getLevel()) {
                     case COVERED:
                         mDrawableContainer.setLevel(UNCOVERED);
                         break;
@@ -89,8 +89,19 @@ public class TileView extends View {
     }
 
     private void setupBackgrounds() throws InvalidArgumentException {
-        mDrawableContainer = new LevelListDrawable();
+        Drawable coveredTile = setupCoveredTile();
+        Drawable uncoveredTile = setupUncoveredTile();
+        LayerDrawable flaggedMineDrawable = new LayerDrawable(new Drawable[]{coveredTile, new ConcentricCirclesDrawable()});
 
+        mDrawableContainer = new LevelListDrawable();
+        mDrawableContainer.addLevel(0, COVERED, coveredTile);
+        mDrawableContainer.addLevel(0, FLAGGED_AS_MINE, flaggedMineDrawable);
+        mDrawableContainer.addLevel(0, UNCOVERED, uncoveredTile);
+
+        setBackground(mDrawableContainer);
+    }
+
+    private Drawable setupCoveredTile() throws InvalidArgumentException {
         // TODO: Move this to a theme
         int colorInner = GraphicsUtils.getColor(getContext(), R.color.blue_grey_200);
         int colorTop = GraphicsUtils.getColor(getContext(), R.color.blue_grey_300);
@@ -100,16 +111,10 @@ public class TileView extends View {
 
         int[] tileColors = new int[]{colorInner, colorLeft, colorTop, colorRight, colorBottom};
 
-        try {
-            mDrawableContainer.addLevel(0, COVERED, new BeveledTileDrawable(tileColors));
-        } catch (InvalidArgumentException e) {
-            String errorMessage = getContext().getResources().getString(R.string.board_initialization_error);
-            Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-        }
+        return new BeveledTileDrawable(tileColors);
+    }
 
-        LayerDrawable flaggedMineDrawable = new LayerDrawable(new Drawable[]{new BeveledTileDrawable(tileColors), new ConcentricCirclesDrawable()});
-        mDrawableContainer.addLevel(0, FLAGGED_AS_MINE, flaggedMineDrawable);
-
+    private Drawable setupUncoveredTile() {
         Drawable uncoveredDrawable;
 
         if(mBoardSquare != null && mBoardSquare.doesContainMine()) {
@@ -130,9 +135,6 @@ public class TileView extends View {
 
             uncoveredDrawable = new TextDrawable(adjacentMineCountText, textColor);
         }
-
-        mDrawableContainer.addLevel(0, UNCOVERED, uncoveredDrawable);
-
-        setBackground(mDrawableContainer);
+        return uncoveredDrawable;
     }
 }
