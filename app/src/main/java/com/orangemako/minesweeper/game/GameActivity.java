@@ -38,8 +38,6 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
     private void setupGame() {
         try {
             mGame = new Game(Board.DEFAULT_DIMENSION, Board.DEFAULT_NUM_MINES, this);
-
-            mBoardLayoutView = (BoardLayoutView) findViewById(R.id.board_layout_view);
             mBoardLayoutView.setupBoard(mGame);
         }
         catch (Exception e) {
@@ -68,7 +66,8 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
         mResetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               setupGame();
+                mBoardLayoutView.removeAllViews();
+                setupGame();
             }
         });
     }

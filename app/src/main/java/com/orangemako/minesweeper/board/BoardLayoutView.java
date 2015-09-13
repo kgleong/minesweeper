@@ -38,7 +38,6 @@ public class BoardLayoutView extends ViewGroup implements TileView.TileViewParen
     private Board mBoard;
     private Game mGame;
 
-    private Set<TileView> mTileViewsWithMines = new HashSet<>();
     private TileView[][] mTileViewsGrid;
 
     public BoardLayoutView(Context context, AttributeSet attrs) {
@@ -181,12 +180,6 @@ public class BoardLayoutView extends ViewGroup implements TileView.TileViewParen
             for(int j = 0; j < dimension; j++) {
                 TileView tileView = new TileView(getContext(), this, mGame, j, i);
                 addView(tileView);
-
-                BoardSquare boardSquare = mBoard.getBoardGrid()[i][j];
-
-                if(boardSquare != null && boardSquare.doesContainMine()) {
-                    mTileViewsWithMines.add(tileView);
-                }
 
                 mTileViewsGrid[i][j] = tileView;
             }
