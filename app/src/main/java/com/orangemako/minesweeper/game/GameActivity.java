@@ -59,6 +59,7 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
                 else {
                     message = "YOU'RE DEAD";
                 }
+                GameActivity.this.mGame.setIsGameEnded(true);
                 Toast.makeText(GameActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });
