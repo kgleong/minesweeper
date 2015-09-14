@@ -9,6 +9,7 @@ import android.view.View;
 
 import com.orangemako.minesweeper.MinesweeperApplication;
 import com.orangemako.minesweeper.R;
+import com.orangemako.minesweeper.board.BoardSquare;
 import com.orangemako.minesweeper.exceptions.InvalidArgumentException;
 import com.orangemako.minesweeper.game.Game;
 import com.orangemako.minesweeper.utilities.GraphicsUtils;
@@ -84,13 +85,11 @@ public class TileView extends View {
 
     private void setupDrawableBackgrounds() throws InvalidArgumentException {
         Drawable coveredTile = setupCoveredTile();
-        Drawable uncoveredTile = setupUncoveredTile();
         LayerDrawable flaggedMineDrawable = new LayerDrawable(new Drawable[]{coveredTile, new ConcentricCirclesDrawable()});
 
         mDrawableContainer = new LevelListDrawable();
         mDrawableContainer.addLevel(0, COVERED, coveredTile);
         mDrawableContainer.addLevel(0, FLAGGED_AS_MINE, flaggedMineDrawable);
-        mDrawableContainer.addLevel(0, UNCOVERED, uncoveredTile);
 
         setBackground(mDrawableContainer);
     }
@@ -108,26 +107,28 @@ public class TileView extends View {
         return new BeveledTileDrawable(tileColors);
     }
 
-    private Drawable setupUncoveredTile() {
+    public void setupUncoveredTileDrawable(BoardSquare boardSquare) {
         Drawable uncoveredDrawable;
 
-        if(mDoesContainMine) {
+        if(boardSquare != null && boardSquare.doesContainMine()) {
             uncoveredDrawable = new ConcentricCirclesDrawable(new int[]{Color.RED, Color.BLACK}, 0.50f);
         }
         else {
-            String adjacentMineCountText = "";
+            String adjacentMineCountText;
             int textColor = 0;
 
-            if(mBoardSquare != null) {
-                if(mAdjacentMineCount > 0) {
-                    textColor = sAdjacentMineCountToColorMap.get(mAdjacentMineCount);
-                    adjacentMineCountText = String.valueOf(mAdjacentMineCount);
-                }
+            if(boardSquare == null) {
+                adjacentMineCountText = "";
             }
+            else {
+                int adjacentMinesCount = boardSquare.getAdjacentMinesCount();
 
+                textColor = sAdjacentMineCountToColorMap.get(adjacentMinesCount);
+                adjacentMineCountText = String.valueOf(adjacentMinesCount);
+            }
             uncoveredDrawable = new TextDrawable(adjacentMineCountText, textColor);
         }
-        return uncoveredDrawable;
+        mDrawableContainer.addLevel(0, UNCOVERED, uncoveredDrawable);
     }
 
     public int getXGridCoordinate() {
@@ -138,33 +139,11 @@ public class TileView extends View {
         return mYGridCoordinate;
     }
 
-    public int getAdjacentMineCount() {
-        return mAdjacentMineCount;
-    }
-
     public int getState() {
         return mDrawableContainer.getLevel();
     }
 
     public void setState(int state) {
         mDrawableContainer.setLevel(state);
-    }
-
-    public boolean doesContainMine() {
-        return mDoesContainMine;
-    }
-
-    public LevelListDrawable getDrawableContainer() {
-        return mDrawableContainer;
-    }
-
-    public interface TileViewListener {
-        void uncoverTileRequested(boolean doesContainMine);
-        boolean flagTileRequested();
-        void unflagTileRequested();
-    }
-
-    public interface TileViewParent {
-        void uncoverAdjacentBlankTiles(TileView tileView);
     }
 }

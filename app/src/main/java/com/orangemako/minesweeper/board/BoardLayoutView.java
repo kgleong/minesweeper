@@ -187,4 +187,8 @@ public class BoardLayoutView extends ViewGroup {
             throw new InitializationException();
         }
     }
+
+    public Board getBoard() {
+        return mBoard;
+    }
 }

@@ -3,6 +3,7 @@ package com.orangemako.minesweeper.game;
 import android.util.Log;
 
 import com.orangemako.minesweeper.MinesweeperApplication;
+import com.orangemako.minesweeper.board.Board;
 import com.orangemako.minesweeper.board.BoardSquare;
 import com.orangemako.minesweeper.exceptions.InitializationException;
 import com.orangemako.minesweeper.tile.TileView;
@@ -15,14 +16,21 @@ import java.util.Stack;
 public class Game {
     private GameManager mGameManager;
 
+    // Board state
+    private Board mBoard;
     private BoardSquare[][] mBoardSquaresGrid;
     private TileView[][] mTileViewsGrid;
 
+    // Game state
     private boolean mIsGameFinished = false;
+    private long mStartTime;
+    private long mElapsedTime = 0;
+    private int mMineFlagsRemaining;
 
-    public Game(GameManager gameManager, BoardSquare[][] boardSquaresGrid) throws InitializationException {
+    public Game(GameManager gameManager, Board board) throws InitializationException {
         if(mGameManager != null && mBoardSquaresGrid != null) {
-            mBoardSquaresGrid = boardSquaresGrid;
+            mBoard = board;
+            mBoardSquaresGrid = board.getBoardGrid();
             mGameManager = gameManager;
 
             init();
@@ -35,11 +43,26 @@ public class Game {
     }
 
     private void init() {
-        int dimension = mBoardSquaresGrid.length;
+        int dimension = mBoard.getDimension();
+
+        mMineFlagsRemaining = mBoard.getNumMines();
         mTileViewsGrid = new TileView[dimension][dimension];
 
         // Register to receive game state change events
         MinesweeperApplication.getGameBus().register(this);
+    }
+
+    public void startTimer() {
+        mStartTime = System.currentTimeMillis();
+    }
+
+    public void stopTimer() {
+        if(mStartTime > 0) {
+            mElapsedTime += System.currentTimeMillis() - mStartTime;
+
+            // Reset timer
+            mStartTime = 0;
+        }
     }
 
     // Called from the Game Manager
@@ -123,6 +146,10 @@ public class Game {
         }
     }
 
+    public long getElapsedTime() {
+        return mElapsedTime;
+    }
+
     @Subscribe
     public void onTileCreated(TileViewCreatedEvent event) {
         TileView tileView = event.mTileView;
@@ -131,6 +158,9 @@ public class Game {
         int y = tileView.getYGridCoordinate();
 
         mTileViewsGrid[x][y] = tileView;
+
+        // Set the uncovered graphic for the TileView.
+        tileView.setupUncoveredTileDrawable(mBoardSquaresGrid[x][y]);
     }
 
     public static class TileViewCreatedEvent {
@@ -156,12 +186,20 @@ public class Game {
                 case TileView.CLICK:
                     switch(tileView.getState()) {
                         case TileView.COVERED:
-                            state = TileView.FLAGGED_AS_MINE;
-                            isAllowed = true;
+                            // Add a flag
+                            if(mMineFlagsRemaining < mBoard.getNumMines()) {
+                                state = TileView.FLAGGED_AS_MINE;
+                                isAllowed = true;
+
+                                mGameManager.publishFlagsRemainingCount(--mMineFlagsRemaining);
+                            }
                             break;
                         case TileView.FLAGGED_AS_MINE:
+                            // Remove a flag
                             state = TileView.COVERED;
                             isAllowed = true;
+
+                            mGameManager.publishFlagsRemainingCount(++mMineFlagsRemaining);
                             break;
                     }
                     break;

@@ -6,36 +6,26 @@ import com.orangemako.minesweeper.board.Board;
 import com.orangemako.minesweeper.board.BoardLayoutView;
 import com.orangemako.minesweeper.exceptions.InitializationException;
 import com.orangemako.minesweeper.exceptions.InvalidArgumentException;
-import com.orangemako.minesweeper.tile.TileView;
 
-public class GameManager implements TileView.TileViewListener {
-    private static boolean mIsGameEnded = false;
+public class GameManager{
+    private Listener mListener;
+    private BoardLayoutView mBoardLayoutView;
+    private Game mGame;
 
-    private long mStartTime;
-    private int mElapsedTime = 0;
-    private GameManagerListener mListener;
+    public GameManager(int dimension, int numMines, BoardLayoutView boardLayoutView, Listener listener) throws
+            InvalidArgumentException, InitializationException {
 
-    // GameManager state
-    private int mFlagsRemaining;
-
-    // TODO: delegate methods like getDimension to mBoard so
-    // associated objects will only need a reference to a GameManager object.
-    Board mBoard;
-
-    public GameManager(int dimension, int numMines, GameManagerListener listener, BoardLayoutView boardLayoutView) throws
-            InvalidArgumentException,  OutOfOrderException, InitializationException {
-
-
-        mFlagsRemaining = mBoard.getNumMines();
+        mBoardLayoutView = boardLayoutView;
         mListener = listener;
-        mListener.updateFlagsRemainingCount(mFlagsRemaining);
-        mListener.updateTimeElapsed(mElapsedTime);
 
-        startTimer();
+        initGame(dimension, numMines);
     }
 
-    private void init(int dimension, int numMines) throws InvalidArgumentException, OutOfOrderException, InitializationException {
+    public void initGame(int dimension, int numMines) throws InvalidArgumentException, InitializationException {
         Board board = new Board.Builder().dimension(dimension).numMines(numMines).build();
+
+        mBoardLayoutView.setupBoard(board);
+        mGame = new Game(this, board);
     }
 
     public void publishWin() {
@@ -46,59 +36,29 @@ public class GameManager implements TileView.TileViewListener {
         mListener.onLoss();
     }
 
-    public Board getBoard() {
-        return mBoard;
+    public void publishFlagsRemainingCount(int flagsRemaining) {
+        mListener.updateFlagsRemainingCount(flagsRemaining);
+    }
+
+    // Delegate methods to Game object
+    public void finishGame() {
+        mGame.finishGame();
     }
 
     public void startTimer() {
-        mStartTime = System.currentTimeMillis();
+        mGame.startTimer();
     }
 
     public void stopTimer() {
-        if(mStartTime > 0) {
-            mElapsedTime += System.currentTimeMillis() - mStartTime;
-
-            // Reset timer
-            mStartTime = 0;
-        }
+        mGame.stopTimer();
     }
 
-    public boolean isGameEnded() {
-        return mIsGameEnded;
+    public long getElapsedTime() {
+        return mGame.getElapsedTime();
     }
+    // End delegated methods
 
-    public static void setIsGameEnded(boolean isGameEnded) {
-        GameManager.mIsGameEnded = mIsGameEnded;
-    }
-
-    public int getElapsedTime() {
-        return mElapsedTime;
-    }
-
-    @Override
-    public void uncoverTileRequested(boolean doesContainMine) {
-        if(doesContainMine) {
-            mListener.onLoss();
-        }
-    }
-
-    @Override
-    public boolean flagTileRequested() {
-        boolean reply = false;
-
-        if(mFlagsRemaining > 0) {
-            reply = true;
-            mListener.updateFlagsRemainingCount(--mFlagsRemaining);
-        }
-        return reply;
-    }
-
-    @Override
-    public void unflagTileRequested() {
-        mListener.updateFlagsRemainingCount(++mFlagsRemaining);
-    }
-
-    public interface GameManagerListener {
+    public interface Listener {
         void updateTimeElapsed(int elapsedTime);
         void updateFlagsRemainingCount(int flagsRemaining);
         void onLoss();
@@ -106,18 +66,40 @@ public class GameManager implements TileView.TileViewListener {
     }
 
     public static class Builder {
+        public static final String TAG = Builder.class.getName();
+
         int mDimension = Board.DEFAULT_DIMENSION;
         int mNumMines = Board.DEFAULT_NUM_MINES;
-        GameManagerListener mGameManagerListener;
+        Listener mListener;
         BoardLayoutView mBoardLayoutView;
 
+        public void dimension(int dimension) throws InvalidArgumentException {
+            if(dimension > 0) {
+                mDimension = dimension;
+            }
+            else {
+                Log.e(TAG, "Dimension must be greater than 0");
+                throw new InvalidArgumentException();
+            }
+        }
+
+        public void numMines(int numMines) throws InvalidArgumentException {
+            if(numMines > 0) {
+                mNumMines = numMines;
+            }
+            else {
+                Log.e(TAG, "Number of mines must be greater than 0");
+                throw new InvalidArgumentException();
+            }
+        }
+
         public GameManager build() throws InitializationException, InvalidArgumentException {
-            if(mGameManagerListener == null || mBoardLayoutView == null) {
+            if(mListener == null || mBoardLayoutView == null) {
                 Log.e(this.getClass().getName(), "Game manager listener and board layout view required");
                 throw new InitializationException();
             }
             else {
-                return new GameManager(mDimension, mNumMines, mGameManagerListener, mBoardLayoutView);
+                return new GameManager(mDimension, mNumMines, mBoardLayoutView, mListener);
             }
         }
     }
