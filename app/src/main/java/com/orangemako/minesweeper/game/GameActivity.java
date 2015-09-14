@@ -15,14 +15,14 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 
-public class GameActivity extends AppCompatActivity implements Game.GameListener{
+public class GameActivity extends AppCompatActivity implements GameManager.GameManagerListener {
     @Bind(R.id.board_layout_view) BoardLayoutView mBoardLayoutView;
     @Bind(R.id.remaining_flags_text_view) TextView mRemainingFlagsTextView;
     @Bind(R.id.elapsed_time_text_view) TextView mElapsedTimeTextView;
     @Bind(R.id.finish_button) Button mFinishButton;
     @Bind(R.id.reset_button) Button mResetButton;
 
-    private Game mGame;
+    private GameManager mGameManager;
     private int mElapsedTime;
 
     @Override
@@ -37,8 +37,8 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
 
     private void setupGame() {
         try {
-            mGame = new Game(Board.DEFAULT_DIMENSION, Board.DEFAULT_NUM_MINES, this);
-            mBoardLayoutView.setupBoard(mGame);
+            mGameManager = new GameManager(Board.DEFAULT_DIMENSION, Board.DEFAULT_NUM_MINES, this);
+            mBoardLayoutView.setupBoard(mGameManager);
         }
         catch (Exception e) {
             String errorMessage = getResources().getString(R.string.board_initialization_error);
@@ -50,7 +50,7 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
         mFinishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Refactor to use a GameState object instead.
+                // TODO: Refactor to use a Game object instead.
                 boolean result = mBoardLayoutView.calculateResult();
                 String message;
                 if(result) {
@@ -59,7 +59,7 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
                 else {
                     message = "YOU'RE DEAD";
                 }
-                GameActivity.this.mGame.setIsGameEnded(true);
+                GameActivity.this.mGameManager.setIsGameEnded(true);
                 Toast.makeText(GameActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });
@@ -76,15 +76,15 @@ public class GameActivity extends AppCompatActivity implements Game.GameListener
     @Override
     protected void onResume() {
         super.onResume();
-        mGame.startTimer();
-        mElapsedTime = mGame.getElapsedTime();
+        mGameManager.startTimer();
+        mElapsedTime = mGameManager.getElapsedTime();
         updateTimeElapsed(mElapsedTime);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mGame.stopTimer();
+        mGameManager.stopTimer();
     }
 
     @Override

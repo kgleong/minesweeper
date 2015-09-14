@@ -1,15 +1,15 @@
 package com.orangemako.minesweeper.board;
 
 public class BoardSquare {
-    boolean mContainsMine = false;
-    int mAdjacentMinesCount = 0;
+    private boolean mContainsMine = false;
+    private int mAdjacentMinesCount = 0;
 
-    int x;
-    int y;
+    private int mXGridCoordinate;
+    private int mYGridCoordinate;
 
-    public BoardSquare(int x, int y){
-        this.x = x;
-        this.y = y;
+    public BoardSquare(int xGridCoordinate, int yGridCoordinate){
+        mXGridCoordinate = xGridCoordinate;
+        mYGridCoordinate = yGridCoordinate;
     }
 
     @Override
@@ -19,7 +19,9 @@ public class BoardSquare {
         if(object instanceof BoardSquare) {
             BoardSquare otherSquare = (BoardSquare) object;
 
-            if(this.x == otherSquare.x && this.y == otherSquare.y) {
+            if( this.mXGridCoordinate == otherSquare.mXGridCoordinate &&
+                    this.mYGridCoordinate == otherSquare.mYGridCoordinate) {
+
                 result = true;
             }
         }
@@ -30,7 +32,7 @@ public class BoardSquare {
     @Override
     public int hashCode() {
         StringBuilder builder = new StringBuilder();
-        builder.append(x).append(',').append('y');
+        builder.append(mXGridCoordinate).append(',').append('y');
 
         return builder.toString().hashCode();
     }
@@ -39,7 +41,23 @@ public class BoardSquare {
         return mContainsMine;
     }
 
+    public void setContainsMine(boolean containsMine) {
+        mContainsMine = containsMine;
+    }
+
     public int getAdjacentMinesCount() {
         return mAdjacentMinesCount;
+    }
+
+    public void setAdjacentMinesCount(int adjacentMinesCount) {
+        mAdjacentMinesCount = adjacentMinesCount;
+    }
+
+    public int getXGridCoordinate() {
+        return mXGridCoordinate;
+    }
+
+    public int getYGridCoordinate() {
+        return mYGridCoordinate;
     }
 }

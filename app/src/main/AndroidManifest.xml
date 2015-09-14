@@ -10,7 +10,7 @@
         android:theme="@style/AppTheme"
         >
         <activity
-            android:name=".game.GameActivity"
+            android:name=".gameManager.GameActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             >

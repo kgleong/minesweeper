@@ -9,24 +9,23 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import com.orangemako.minesweeper.MinesweeperApplication;
 import com.orangemako.minesweeper.R;
 import com.orangemako.minesweeper.exceptions.InitializationException;
 import com.orangemako.minesweeper.exceptions.InvalidArgumentException;
 import com.orangemako.minesweeper.game.Game;
 import com.orangemako.minesweeper.tile.TileView;
 import com.orangemako.minesweeper.utilities.GraphicsUtils;
+import com.squareup.otto.Bus;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
-
-public class BoardLayoutView extends ViewGroup implements TileView.TileViewParent {
+public class BoardLayoutView extends ViewGroup {
     static final int DEFAULT_LINE_COLOR = Color.BLACK;
 
     // In density independent pixels (dp)
     static final int DEFAULT_BORDER_WIDTH = 2;
     static final int DEFAULT_GRIDLINE_WIDTH = 1;
 
+    // Draw objects
     private Paint mGridLinesPaint;
     private int mGridLineColor;
     private float mGridLineStrokeWidth;
@@ -36,12 +35,13 @@ public class BoardLayoutView extends ViewGroup implements TileView.TileViewParen
     private float mBorderStrokeWidth;
 
     private Board mBoard;
-    private Game mGame;
+    private Bus mGameBus;
 
-    private TileView[][] mTileViewsGrid;
 
     public BoardLayoutView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        mGameBus = MinesweeperApplication.getGameBus();
 
         // Enable drawing for ViewGroup object
         setWillNotDraw(false);
@@ -94,6 +94,7 @@ public class BoardLayoutView extends ViewGroup implements TileView.TileViewParen
         int dimension = mBoard.getDimension();
         int interval = Math.min(getMeasuredWidth(), getMeasuredHeight()) / dimension;
 
+        // Place all tiles
         for(int i = 0; i < childCount; i++ ) {
             TileView tileView = (TileView) getChildAt(i);
 
@@ -157,26 +158,27 @@ public class BoardLayoutView extends ViewGroup implements TileView.TileViewParen
         }
     }
 
-    public void setupBoard(Game game) throws InitializationException, InvalidArgumentException {
-        this.mGame = game;
-        this.mBoard = game.getBoard();
+    public void setupBoard(Board board) throws InitializationException, InvalidArgumentException {
+        this.mBoard = board;
 
-        // Generate children
-        addBoardSquareTiles();
+        // Clear old tiles
+        this.removeAllViews();
 
-        invalidate();
+        // Create new set of tiles
+        createTileViews();
     }
 
-    private void addBoardSquareTiles() throws InitializationException, InvalidArgumentException {
+    private void createTileViews() throws InitializationException, InvalidArgumentException {
         int dimension = mBoard.getDimension();
-        mTileViewsGrid = new TileView[dimension][dimension];
 
         for(int i = 0; i < dimension; i++) {
             for(int j = 0; j < dimension; j++) {
-                TileView tileView = new TileView(getContext(), this, mGame, j, i);
+                TileView tileView = new TileView(getContext(), i, j);
+
                 addView(tileView);
 
-                mTileViewsGrid[i][j] = tileView;
+                // Notify the game that a new tile has been created.
+                mGameBus.post(new Game.TileViewCreatedEvent(tileView));
             }
         }
 
@@ -184,63 +186,5 @@ public class BoardLayoutView extends ViewGroup implements TileView.TileViewParen
             Log.e(BoardLayoutView.class.getName(), "Tile count must be equal to dimension ^ 2.");
             throw new InitializationException();
         }
-    }
-
-    @Override
-    public void uncoverAdjacentBlankTiles(TileView tileView) {
-        Set<TileView> visited = new HashSet<>();
-        Stack<TileView> queue = new Stack<>();
-
-        visited.add(tileView);
-        queue.add(tileView);
-
-        int dimension = mBoard.getDimension();
-
-        while(!queue.empty()) {
-            TileView currentTile = queue.pop();
-
-            int x = currentTile.getXCoordinate();
-            int y = currentTile.getYCoordinate();
-
-            int startingY = Math.max(0, y - 1);
-            int startingX = Math.max(0, x - 1);
-
-            for(int i = startingY; i < dimension && i <= y + 1; i++) {
-                for (int j = startingX; j < dimension && j <= x + 1; j++) {
-                    TileView adjacentTile = mTileViewsGrid[i][j];
-                    boolean added = visited.add(adjacentTile);
-
-                    if(added && !adjacentTile.doesContainMine() && adjacentTile.getAdjacentMineCount() == 0) {
-                        adjacentTile.getDrawableContainer().setLevel(TileView.UNCOVERED);
-                        queue.add(adjacentTile);
-                    }
-                }
-            }
-        }
-    }
-
-    public boolean calculateResult() {
-        boolean didWin = true;
-
-        for(int i = 0; i < mBoard.getDimension(); i++) {
-            for(int j = 0; j < mBoard.getDimension(); j++) {
-                TileView tileView = mTileViewsGrid[i][j];
-
-                boolean isCovered = tileView.getDrawableContainer().getLevel() == TileView.COVERED;
-
-                if(isCovered) {
-                    if(tileView.doesContainMine()) {
-                        didWin = false;
-                    }
-
-                    tileView.getDrawableContainer().setLevel(TileView.UNCOVERED);
-
-                    if(!didWin){
-                        break;
-                    }
-                }
-            }
-        }
-        return didWin;
     }
 }
