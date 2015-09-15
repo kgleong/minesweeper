@@ -1,5 +1,69 @@
 apply plugin: 'com.android.application'
 
+// Project properties
+def credentialsProperties = new Properties()
+credentialsProperties.load(new FileInputStream("$rootDir/credentials.properties"))
+
+// Release credentials properties.  E.g., keystore credentials.
+def releaseCredentialsFilePath = credentialsProperties['releaseCredentialsFilePath']
+
+if(file(releaseCredentialsFilePath).exists()) {
+    // Load keystore credentials.
+    def keystoreProperties = new Properties()
+    keystoreProperties.load(new FileInputStream(releaseCredentialsFilePath))
+
+    android {
+        signingConfigs {
+            release {
+                storeFile file(keystoreProperties['keystoreFile'])
+                storePassword keystoreProperties['keystorePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+
+        buildTypes {
+            release {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}
+
+def generateVersionCode() {
+    try {
+        def output = new ByteArrayOutputStream()
+
+        exec {
+            // Count commits in current branch.
+            commandLine "git", "rev-list", "HEAD", "--count"
+            standardOutput = output
+        }
+
+        return output.toString().trim() as int
+    }
+    catch(exception) {
+        return -1
+    }
+}
+
+def generateVersionName() {
+    try {
+        def output = new ByteArrayOutputStream()
+
+        exec {
+            // Get latest tag name.
+            commandLine "git", "describe", "--tags", "--abbrev=0"
+            standardOutput = output
+        }
+
+        return output.toString().trim()
+    }
+    catch(exception) {
+        return null
+    }
+}
+
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
@@ -8,8 +72,8 @@ android {
         applicationId "com.orangemako.minesweeper"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode generateVersionCode()
+        versionName generateVersionName()
     }
     buildTypes {
         release {

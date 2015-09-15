@@ -6,4 +6,13 @@
         <attr name="borderColor" format="color" />
         <attr name="borderWidth" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="BeveledTileView">
+        <attr name="innerRectColor" format="color" />
+        <attr name="leftBevelColor" format="color" />
+        <attr name="topBevelColor" format="color" />
+        <attr name="rightBevelColor" format="color" />
+        <attr name="bottomBevelColor" format="color" />
+        <attr name="fillPercentage" format="float" />
+    </declare-styleable>
 </resources>

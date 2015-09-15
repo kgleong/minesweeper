@@ -1,12 +1,16 @@
-package com.orangemako.minesweeper.tile;
+package com.orangemako.minesweeper.drawable;
 
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
 
+import com.orangemako.minesweeper.R;
 import com.orangemako.minesweeper.exceptions.InvalidArgumentException;
 
 import java.util.Arrays;
@@ -19,7 +23,8 @@ public class BeveledTileDrawable extends Drawable {
     static final int TOP_BEVEL_COLOR_INDICE = 2;
     static final int RIGHT_BEVEL_COLOR_INDICE = 3;
     static final int BOTTOM_BEVEL_COLOR_INDICE = 4;
-    static final int REQUIRED_COLOR_COUNT = 5;
+
+    public static final int REQUIRED_COLOR_COUNT = 5;
 
     private float mFillPercent = DEFAULT_FILL_PERCENT;
 
@@ -37,9 +42,12 @@ public class BeveledTileDrawable extends Drawable {
 
     private BeveledTileDrawableState mDrawableState;
 
-    public BeveledTileDrawable(int[] colorList) throws InvalidArgumentException {
+    public BeveledTileDrawable(int[] colorList, Float fillPercent) throws InvalidArgumentException {
         if(colorList.length != REQUIRED_COLOR_COUNT) {
             throw new InvalidArgumentException("Must provide 5 colors.");
+        }
+        if(fillPercent != null) {
+            mFillPercent = fillPercent;
         }
 
         mColorList = colorList;
@@ -51,6 +59,7 @@ public class BeveledTileDrawable extends Drawable {
         if(mDrawableState == null) {
             mDrawableState = new BeveledTileDrawableState();
             mDrawableState.mColorList = mColorList;
+            mDrawableState.mFillPercent = mFillPercent;
         }
     }
 
@@ -157,6 +166,60 @@ public class BeveledTileDrawable extends Drawable {
         path.close();
     }
 
+    public static BeveledTileAttributeSet extractAttributes(Context context, AttributeSet attrs){
+        BeveledTileAttributeSet beveledTileAttributeSet = null;
+
+        TypedArray attributesArray =  context.obtainStyledAttributes(attrs, R.styleable.BeveledTileView);
+
+        try {
+            int[] colorList = new int[BeveledTileDrawable.REQUIRED_COLOR_COUNT];
+
+            colorList[INNER_RECT_COLOR_INDICE] = attributesArray.getColor(R.styleable.BeveledTileView_innerRectColor, -1);
+            colorList[LEFT_BEVEL_COLOR_INDICE] = attributesArray.getColor(R.styleable.BeveledTileView_leftBevelColor, -1);
+            colorList[TOP_BEVEL_COLOR_INDICE] = attributesArray.getColor(R.styleable.BeveledTileView_topBevelColor, -1);
+            colorList[RIGHT_BEVEL_COLOR_INDICE] = attributesArray.getColor(R.styleable.BeveledTileView_rightBevelColor, -1);
+            colorList[BOTTOM_BEVEL_COLOR_INDICE] = attributesArray.getColor(R.styleable.BeveledTileView_bottomBevelColor, -1);
+            float fillPercent = attributesArray.getFloat(R.styleable.BeveledTileView_fillPercentage, -1);
+
+            beveledTileAttributeSet = new BeveledTileAttributeSet(colorList, fillPercent);
+        }
+        finally {
+            attributesArray.recycle();
+            return beveledTileAttributeSet;
+        }
+    }
+
+    public static class BeveledTileAttributeSet {
+        int[] mColorArray;
+        Float mFillPercent;
+
+        public BeveledTileAttributeSet(int[] colorArray, float fillPercent) {
+            boolean allColorsPresent = true;
+
+            for(int color : colorArray) {
+                if(color == -1) {
+                    allColorsPresent = false;
+                    break;
+                }
+            }
+
+            if(allColorsPresent) {
+                mColorArray = colorArray;
+            }
+
+            if(fillPercent > 0) {
+                mFillPercent = fillPercent;
+            }
+        }
+
+        public int[] getColorArray() {
+            return mColorArray;
+        }
+
+        public Float getFillPercent() {
+            return mFillPercent;
+        }
+    }
 
     @Override
     public void setAlpha(int alpha) {
@@ -180,11 +243,12 @@ public class BeveledTileDrawable extends Drawable {
 
     private class BeveledTileDrawableState extends ConstantState {
         int[] mColorList;
+        float mFillPercent;
 
         @Override
         public Drawable newDrawable() {
             try {
-                return new BeveledTileDrawable(mColorList);
+                return new BeveledTileDrawable(mColorList, mFillPercent);
             } catch (InvalidArgumentException e) {
                 return null;
             }

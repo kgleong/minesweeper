@@ -1,16 +1,20 @@
 package com.orangemako.minesweeper.game;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.LevelListDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.orangemako.minesweeper.R;
 import com.orangemako.minesweeper.board.Board;
 import com.orangemako.minesweeper.board.BoardLayoutView;
+import com.orangemako.minesweeper.drawable.ConcentricCirclesDrawable;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -20,17 +24,22 @@ import butterknife.ButterKnife;
 
 
 public class GameActivity extends AppCompatActivity implements GameManager.Listener {
+    static final int IN_PLAY_LEVEL = 0;
+    static final int WON_LEVEL = 1;
+    static final int LOST_LEVEL = 2;
+
     @Bind(R.id.board_layout_view) BoardLayoutView mBoardLayoutView;
     @Bind(R.id.remaining_flags_text_view) TextView mRemainingFlagsTextView;
     @Bind(R.id.elapsed_time_text_view) TextView mElapsedTimeTextView;
     @Bind(R.id.finish_button) Button mFinishButton;
     @Bind(R.id.reset_button) Button mResetButton;
+    @Bind(R.id.status_image_view) ImageView mStatusImageView;
 
     private GameManager mGameManager;
     private int mDimension = Board.DEFAULT_DIMENSION;
     private int mNumMines = Board.DEFAULT_NUM_MINES;
+    private LevelListDrawable mStatusImageDrawable;
 
-    private long mElapsedTime;
     private Timer mTimer;
 
     @Override
@@ -70,7 +79,7 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
 
                     stopTimer();
                     startTimer();
-
+                    mStatusImageDrawable.setLevel(IN_PLAY_LEVEL);
                 }
                 catch (Exception e) {
                     Context context = GameActivity.this;
@@ -79,6 +88,14 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
                 }
             }
         });
+
+        float fillPercent = 0.8f;
+        mStatusImageDrawable = new LevelListDrawable();
+        mStatusImageDrawable.addLevel(0, IN_PLAY_LEVEL, new ConcentricCirclesDrawable(new int[]{Color.BLUE, Color.CYAN}, fillPercent));
+        mStatusImageDrawable.addLevel(0, WON_LEVEL, new ConcentricCirclesDrawable(new int[]{Color.GREEN, Color.YELLOW}, fillPercent));
+        mStatusImageDrawable.addLevel(0, LOST_LEVEL, new ConcentricCirclesDrawable(new int[]{Color.RED, Color.BLACK}, fillPercent));
+
+        mStatusImageView.setBackground(mStatusImageDrawable);
     }
 
     @Override
@@ -132,7 +149,6 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
 
     @Override
     public void updateTimeElapsed(long elapsedTime) {
-        mElapsedTime = elapsedTime;
         int elapsedTimeInSeconds = (int) elapsedTime / 1000;
 
         mElapsedTimeTextView.setText(String.valueOf(elapsedTimeInSeconds));
@@ -145,12 +161,16 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
 
     @Override
     public void onLoss() {
-        Toast.makeText(this, "LOSS", Toast.LENGTH_SHORT).show();
+        String message = getResources().getString(R.string.loss_message);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        mStatusImageDrawable.setLevel(LOST_LEVEL);
     }
 
     @Override
     public void onWin() {
-        Toast.makeText(this, "WON", Toast.LENGTH_SHORT).show();
+        String message = getResources().getString(R.string.win_message);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        mStatusImageDrawable.setLevel(WON_LEVEL);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.orangemako.minesweeper.tile;
+package com.orangemako.minesweeper.drawable;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

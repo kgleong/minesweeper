@@ -1,4 +1,4 @@
-package com.orangemako.minesweeper.tile;
+package com.orangemako.minesweeper.board;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -9,7 +9,9 @@ import android.view.View;
 
 import com.orangemako.minesweeper.MinesweeperApplication;
 import com.orangemako.minesweeper.R;
-import com.orangemako.minesweeper.board.BoardSquare;
+import com.orangemako.minesweeper.drawable.BeveledTileDrawable;
+import com.orangemako.minesweeper.drawable.ConcentricCirclesDrawable;
+import com.orangemako.minesweeper.drawable.TextDrawable;
 import com.orangemako.minesweeper.exceptions.InvalidArgumentException;
 import com.orangemako.minesweeper.game.Game;
 import com.orangemako.minesweeper.utilities.GraphicsUtils;
@@ -104,7 +106,7 @@ public class TileView extends View {
 
         int[] tileColors = new int[]{colorInner, colorLeft, colorTop, colorRight, colorBottom};
 
-        return new BeveledTileDrawable(tileColors);
+        return new BeveledTileDrawable(tileColors, null);
     }
 
     public void setupUncoveredTileDrawable(BoardSquare boardSquare) {

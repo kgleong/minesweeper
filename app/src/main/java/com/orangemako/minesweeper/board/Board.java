@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class Board {
     public static final int DEFAULT_DIMENSION = 8;
-    public static final int DEFAULT_NUM_MINES = 5;
+    public static final int DEFAULT_NUM_MINES = 10;
     static final String TAG = Board.class.getName();
 
     // Board creation phase states

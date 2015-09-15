@@ -6,7 +6,7 @@ import com.orangemako.minesweeper.MinesweeperApplication;
 import com.orangemako.minesweeper.board.Board;
 import com.orangemako.minesweeper.board.BoardSquare;
 import com.orangemako.minesweeper.exceptions.InitializationException;
-import com.orangemako.minesweeper.tile.TileView;
+import com.orangemako.minesweeper.board.TileView;
 import com.squareup.otto.Subscribe;
 
 import java.util.HashSet;
@@ -81,15 +81,23 @@ public class Game {
                 TileView tileView = mTileViewsGrid[i][j];
                 BoardSquare boardSquare = mBoardSquaresGrid[i][j];
 
-                if(tileView.getState() == TileView.COVERED) {
+                int state = tileView.getState();
+                boolean doesContainMine = boardSquare == null ? false : boardSquare.doesContainMine();
 
+                if(state == TileView.COVERED) {
                     // User did not place a flag over a mine.
-                    if(boardSquare != null && boardSquare.doesContainMine()) {
+                    if(doesContainMine) {
                         didWin = false;
                     }
 
                     // Uncover all tiles without flags.
                     tileView.setState(TileView.UNCOVERED);
+                }
+                else if(state == TileView.FLAGGED_AS_MINE) {
+                    if(!doesContainMine) {
+                        // Uncover flags not covering mines.
+                        tileView.setState(TileView.UNCOVERED);
+                    }
                 }
             }
         }

@@ -14,7 +14,6 @@ import com.orangemako.minesweeper.R;
 import com.orangemako.minesweeper.exceptions.InitializationException;
 import com.orangemako.minesweeper.exceptions.InvalidArgumentException;
 import com.orangemako.minesweeper.game.Game;
-import com.orangemako.minesweeper.tile.TileView;
 import com.orangemako.minesweeper.utilities.GraphicsUtils;
 import com.squareup.otto.Bus;
 
