@@ -1,5 +1,7 @@
 # Minesweeper
-Published to the **[Play Store](https://play.google.com/store/apps/details?id=com.orangemako.minesweeper)**
+First published to the **[Play Store](https://play.google.com/store/apps/details?id=com.orangemako.minesweeper)** on September 15, 2015.
+
+![demo](images/minesweeper_demo.gif)
 
 ## Implementation Details
 All source code has been written exclusively for this application.
