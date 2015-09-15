@@ -73,18 +73,32 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
     @Override
     protected void onResume() {
         super.onResume();
-        mGameManager.startTimer();
-        updateTimeElapsed((int) mGameManager.getElapsedTime());
+
+        if(mGameManager != null) {
+            mGameManager.startTimer();
+            updateTimeElapsed(mGameManager.getElapsedTime());
+            updateMineFlagsRemainingCount(mGameManager.getMineFlagsRemainingCount());
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mGameManager.stopTimer();
+
+        if(mGameManager != null) {
+            mGameManager.stopTimer();
+        }
     }
 
     @Override
-    public void updateFlagsRemainingCount(int flagsRemaining) {
+    public void updateTimeElapsed(long elapsedTime) {
+        int elapsedTimeInSeconds = (int) elapsedTime / 1000;
+
+        mElapsedTimeTextView.setText(String.valueOf(elapsedTimeInSeconds));
+    }
+
+    @Override
+    public void updateMineFlagsRemainingCount(int flagsRemaining) {
         mRemainingFlagsTextView.setText(String.valueOf(flagsRemaining));
     }
 
@@ -96,10 +110,5 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
     @Override
     public void onWin() {
         Toast.makeText(this, "WON", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void updateTimeElapsed(int elapsedTime) {
-        mElapsedTimeTextView.setText(String.valueOf(elapsedTime));
     }
 }

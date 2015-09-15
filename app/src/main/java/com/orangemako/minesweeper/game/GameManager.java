@@ -22,10 +22,18 @@ public class GameManager{
     }
 
     public void initGame(int dimension, int numMines) throws InvalidArgumentException, InitializationException {
-        Board board = new Board.Builder().dimension(dimension).numMines(numMines).build();
+        // Ensure that old games don't receive game events.
+        if(mGame != null) {
+           mGame.unregisterFromEventBus();
+        }
 
-        mBoardLayoutView.setupBoard(board);
+        // Pass a new Board with new mines placement to a new Game.
+        Board board = new Board.Builder().dimension(dimension).numMines(numMines).build();
         mGame = new Game(this, board);
+
+        // The BoardLayoutView posts events to the Game during setup, so there must
+        // be an initialized Game before setup occurs.
+        mBoardLayoutView.setupBoard(board);
     }
 
     public void publishWin() {
@@ -37,7 +45,11 @@ public class GameManager{
     }
 
     public void publishFlagsRemainingCount(int flagsRemaining) {
-        mListener.updateFlagsRemainingCount(flagsRemaining);
+        mListener.updateMineFlagsRemainingCount(flagsRemaining);
+    }
+
+    public void publishElapsedTime(long elapsedTime) {
+        mListener.updateTimeElapsed(elapsedTime);
     }
 
     // Delegate methods to Game object
@@ -56,11 +68,15 @@ public class GameManager{
     public long getElapsedTime() {
         return mGame.getElapsedTime();
     }
-    // End delegated methods
 
+    public int getMineFlagsRemainingCount() {
+        return mGame.getMineFlagsRemainingCount();
+    }
+
+    // End delegated methods
     public interface Listener {
-        void updateTimeElapsed(int elapsedTime);
-        void updateFlagsRemainingCount(int flagsRemaining);
+        void updateTimeElapsed(long elapsedTime);
+        void updateMineFlagsRemainingCount(int flagsRemaining);
         void onLoss();
         void onWin();
     }
@@ -73,7 +89,7 @@ public class GameManager{
         Listener mListener;
         BoardLayoutView mBoardLayoutView;
 
-        public void dimension(int dimension) throws InvalidArgumentException {
+        public Builder dimension(int dimension) throws InvalidArgumentException {
             if(dimension > 0) {
                 mDimension = dimension;
             }
@@ -81,9 +97,11 @@ public class GameManager{
                 Log.e(TAG, "Dimension must be greater than 0");
                 throw new InvalidArgumentException();
             }
+
+            return this;
         }
 
-        public void numMines(int numMines) throws InvalidArgumentException {
+        public Builder numMines(int numMines) throws InvalidArgumentException {
             if(numMines > 0) {
                 mNumMines = numMines;
             }
@@ -91,6 +109,19 @@ public class GameManager{
                 Log.e(TAG, "Number of mines must be greater than 0");
                 throw new InvalidArgumentException();
             }
+            return this;
+        }
+
+        public Builder listener(Listener listener) {
+            mListener = listener;
+
+            return this;
+        }
+
+        public Builder boardLayotuView(BoardLayoutView boardLayoutView) {
+            mBoardLayoutView = boardLayoutView;
+
+            return this;
         }
 
         public GameManager build() throws InitializationException, InvalidArgumentException {

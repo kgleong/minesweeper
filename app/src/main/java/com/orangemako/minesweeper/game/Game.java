@@ -25,10 +25,11 @@ public class Game {
     private boolean mIsGameFinished = false;
     private long mStartTime;
     private long mElapsedTime = 0;
-    private int mMineFlagsRemaining;
+
+    private int mMineFlagsRemainingCount;
 
     public Game(GameManager gameManager, Board board) throws InitializationException {
-        if(mGameManager != null && mBoardSquaresGrid != null) {
+        if(gameManager != null && board != null) {
             mBoard = board;
             mBoardSquaresGrid = board.getBoardGrid();
             mGameManager = gameManager;
@@ -45,11 +46,15 @@ public class Game {
     private void init() {
         int dimension = mBoard.getDimension();
 
-        mMineFlagsRemaining = mBoard.getNumMines();
+        mMineFlagsRemainingCount = mBoard.getNumMines();
         mTileViewsGrid = new TileView[dimension][dimension];
 
         // Register to receive game state change events
         MinesweeperApplication.getGameBus().register(this);
+
+        // Publish initial stats
+        mGameManager.publishFlagsRemainingCount(mMineFlagsRemainingCount);
+        mGameManager.publishElapsedTime(mElapsedTime);
     }
 
     public void startTimer() {
@@ -107,7 +112,7 @@ public class Game {
         int x = tileView.getXGridCoordinate();
         int y = tileView.getYGridCoordinate();
 
-        BoardSquare boardSquare = mBoardSquaresGrid[x][y];
+        BoardSquare boardSquare = mBoardSquaresGrid[y][x];
 
         // A null board square indicates no adjacent mines.
         if(boardSquare == null) {
@@ -131,8 +136,8 @@ public class Game {
 
                 for(int i = startingX; i < dimension && i <= x + 1; i++) {
                     for (int j = startingY; j < dimension && j <= y + 1; j++) {
-                        TileView adjacentTile = mTileViewsGrid[i][j];
-                        BoardSquare adjacentBoardSquare = mBoardSquaresGrid[i][j];
+                        TileView adjacentTile = mTileViewsGrid[j][i];
+                        BoardSquare adjacentBoardSquare = mBoardSquaresGrid[j][i];
 
                         boolean added = visited.add(adjacentTile);
 
@@ -146,8 +151,16 @@ public class Game {
         }
     }
 
+    public void unregisterFromEventBus() {
+        MinesweeperApplication.getGameBus().unregister(this);
+    }
+
     public long getElapsedTime() {
         return mElapsedTime;
+    }
+
+    public int getMineFlagsRemainingCount() {
+        return mMineFlagsRemainingCount;
     }
 
     @Subscribe
@@ -157,10 +170,10 @@ public class Game {
         int x = tileView.getXGridCoordinate();
         int y = tileView.getYGridCoordinate();
 
-        mTileViewsGrid[x][y] = tileView;
+        mTileViewsGrid[y][x] = tileView;
 
         // Set the uncovered graphic for the TileView.
-        tileView.setupUncoveredTileDrawable(mBoardSquaresGrid[x][y]);
+        tileView.setupUncoveredTileDrawable(mBoardSquaresGrid[y][x]);
     }
 
     public static class TileViewCreatedEvent {
@@ -187,11 +200,11 @@ public class Game {
                     switch(tileView.getState()) {
                         case TileView.COVERED:
                             // Add a flag
-                            if(mMineFlagsRemaining < mBoard.getNumMines()) {
+                            if(mMineFlagsRemainingCount > 0) {
                                 state = TileView.FLAGGED_AS_MINE;
                                 isAllowed = true;
 
-                                mGameManager.publishFlagsRemainingCount(--mMineFlagsRemaining);
+                                mGameManager.publishFlagsRemainingCount(--mMineFlagsRemainingCount);
                             }
                             break;
                         case TileView.FLAGGED_AS_MINE:
@@ -199,7 +212,7 @@ public class Game {
                             state = TileView.COVERED;
                             isAllowed = true;
 
-                            mGameManager.publishFlagsRemainingCount(++mMineFlagsRemaining);
+                            mGameManager.publishFlagsRemainingCount(++mMineFlagsRemainingCount);
                             break;
                     }
                     break;
@@ -214,14 +227,17 @@ public class Game {
                         // Get corresponding board square
                         int x = tileView.getXGridCoordinate();
                         int y = tileView.getYGridCoordinate();
-                        BoardSquare boardSquare = mBoardSquaresGrid[x][y];
+                        BoardSquare boardSquare = mBoardSquaresGrid[y][x];
 
-                        // If tile is over a square that contains a mine, player loses.
-                        if(boardSquare.doesContainMine()) {
-                            publishGameResult(false);
-                        }
-                        else if(boardSquare.getAdjacentMinesCount() == 0){
+                        // null BoardSquare means no adjacent mines.
+                        if(boardSquare == null) {
                             uncoverAdjacentBlankTileViews(tileView);
+                        }
+                        else {
+                            // If tile is over a square that contains a mine, player loses.
+                            if(boardSquare.doesContainMine()) {
+                                publishGameResult(false);
+                            }
                         }
                     }
                     break;

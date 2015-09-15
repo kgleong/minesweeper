@@ -173,7 +173,7 @@ public class BoardLayoutView extends ViewGroup {
 
         for(int i = 0; i < dimension; i++) {
             for(int j = 0; j < dimension; j++) {
-                TileView tileView = new TileView(getContext(), i, j);
+                TileView tileView = new TileView(getContext(), j, i);
 
                 addView(tileView);
 
@@ -186,9 +186,5 @@ public class BoardLayoutView extends ViewGroup {
             Log.e(BoardLayoutView.class.getName(), "Tile count must be equal to dimension ^ 2.");
             throw new InitializationException();
         }
-    }
-
-    public Board getBoard() {
-        return mBoard;
     }
 }

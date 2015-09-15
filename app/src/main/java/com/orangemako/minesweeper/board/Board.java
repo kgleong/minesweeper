@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class Board {
     public static final int DEFAULT_DIMENSION = 8;
-    public static final int DEFAULT_NUM_MINES = 10;
+    public static final int DEFAULT_NUM_MINES = 5;
     static final String TAG = Board.class.getName();
 
     // Board creation phase states
@@ -68,7 +68,7 @@ public class Board {
 
             // Place mines
             for(BoardSquare square : mMineSquares) {
-                mBoardGrid[square.getXGridCoordinate()][square.getYGridCoordinate()] = square;
+                mBoardGrid[square.getYGridCoordinate()][square.getXGridCoordinate()] = square;
             }
 
             if(mNumMines == mMineSquares.size()) {
@@ -97,10 +97,10 @@ public class Board {
                 for(int i = startingX; i < mDimension && i <= x + 1; i++) {
                     for(int j = startingY; j < mDimension && j <= y + 1; j++) {
 
-                        BoardSquare square = mBoardGrid[i][j];
+                        BoardSquare square = mBoardGrid[j][i];
 
                         if(square == null) {
-                            mBoardGrid[i][j] = square = new BoardSquare(i, j);
+                            mBoardGrid[j][i] = square = new BoardSquare(i, j);
                         }
                         else if(square.doesContainMine()) {
                             // Don't need to calculate adjacent mines count for
