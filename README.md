@@ -1,6 +1,12 @@
 # Minesweeper
 First published to the **[Play Store](https://play.google.com/store/apps/details?id=com.orangemako.minesweeper)** on September 15, 2015.
 
+* **Instructions**
+    * **Long Click** - Remove tile and uncover square to display number of adjacent squares with mines.
+    * **Normal Click** - Add or remove flag.
+    * Click **Finish** to stop the timer and calculate results.
+    * Click **Reset** to start a new game.
+
 ![demo](images/minesweeper_demo.gif)
 
 ## Implementation Details
@@ -49,6 +55,14 @@ The above graphic includes the following graphical components: `TileView`, `Conc
         * Used for mines, mine flags, and status indicator.
     * `TextDrawable` - **[(source)](https://github.com/kgleong/minesweeper/blob/master/app/src/main/java/com/orangemako/minesweeper/drawable/TextDrawable.java)**
         * Used to provide adjacent mine count.  Necessary since each tile uses a `LevelListDrawable`.
+
+### Upcoming features
+* Add `GameState` parcelable object.
+* Support screen orientation.
+* Persist game state to SQLite.
+* Add online high score tracking.
+* Add navigation drawer.
+* Allow user to change grid size.
 
 ### Libraries used:
 
