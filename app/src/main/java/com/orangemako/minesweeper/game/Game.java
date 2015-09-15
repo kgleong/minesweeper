@@ -84,7 +84,7 @@ public class Game {
                 if(tileView.getState() == TileView.COVERED) {
 
                     // User did not place a flag over a mine.
-                    if(boardSquare.doesContainMine()) {
+                    if(boardSquare != null && boardSquare.doesContainMine()) {
                         didWin = false;
                     }
 
@@ -99,6 +99,7 @@ public class Game {
     private void publishGameResult(boolean didWin) {
         if(!mIsGameFinished) {
             mIsGameFinished = true;
+            mGameManager.publishGameFinished();
 
             if (didWin) {
                 mGameManager.publishWin();
@@ -156,7 +157,14 @@ public class Game {
     }
 
     public long getElapsedTime() {
-        return mElapsedTime;
+        // If the timer has been started, then add the time since it was started
+        // to the saved elapsed time.
+        long additionalRealTime = 0;
+
+        if(mStartTime > 0) {
+            additionalRealTime = System.currentTimeMillis() - mStartTime;
+        }
+        return mElapsedTime + additionalRealTime;
     }
 
     public int getMineFlagsRemainingCount() {

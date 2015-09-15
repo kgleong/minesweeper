@@ -12,6 +12,9 @@ import com.orangemako.minesweeper.R;
 import com.orangemako.minesweeper.board.Board;
 import com.orangemako.minesweeper.board.BoardLayoutView;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -26,6 +29,9 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
     private GameManager mGameManager;
     private int mDimension = Board.DEFAULT_DIMENSION;
     private int mNumMines = Board.DEFAULT_NUM_MINES;
+
+    private long mElapsedTime;
+    private Timer mTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +58,7 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
             @Override
             public void onClick(View v) {
                 mGameManager.finishGame();
+                onGameFinished();
             }
         });
 
@@ -60,8 +67,12 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
             public void onClick(View v) {
                 try {
                     mGameManager.initGame(mDimension, mNumMines);
+
+                    stopTimer();
+                    startTimer();
+
                 }
-                catch(Exception e) {
+                catch (Exception e) {
                     Context context = GameActivity.this;
                     String message = context.getResources().getString(R.string.game_reset_error);
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
@@ -75,23 +86,53 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
         super.onResume();
 
         if(mGameManager != null) {
-            mGameManager.startTimer();
-            updateTimeElapsed(mGameManager.getElapsedTime());
             updateMineFlagsRemainingCount(mGameManager.getMineFlagsRemainingCount());
+            startTimer();
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        stopTimer();
+    }
 
+    void startTimer() {
         if(mGameManager != null) {
+            mGameManager.startTimer();
+
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateTimeElapsed(mGameManager.getElapsedTime());
+                        }
+                    });
+                }
+            };
+
+            mTimer = new Timer();
+
+            // Delay: 0, Interval: 1000ms
+            mTimer.schedule(timerTask, 0, 1000);
+        }
+    }
+
+
+    void stopTimer() {
+        if(mGameManager != null && mTimer != null) {
             mGameManager.stopTimer();
+
+            mTimer.cancel();
+            mTimer = null;
         }
     }
 
     @Override
     public void updateTimeElapsed(long elapsedTime) {
+        mElapsedTime = elapsedTime;
         int elapsedTimeInSeconds = (int) elapsedTime / 1000;
 
         mElapsedTimeTextView.setText(String.valueOf(elapsedTimeInSeconds));
@@ -110,5 +151,10 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
     @Override
     public void onWin() {
         Toast.makeText(this, "WON", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onGameFinished() {
+        stopTimer();
     }
 }

@@ -44,6 +44,10 @@ public class GameManager{
         mListener.onLoss();
     }
 
+    public void publishGameFinished() {
+        mListener.onGameFinished();
+    }
+
     public void publishFlagsRemainingCount(int flagsRemaining) {
         mListener.updateMineFlagsRemainingCount(flagsRemaining);
     }
@@ -79,6 +83,7 @@ public class GameManager{
         void updateMineFlagsRemainingCount(int flagsRemaining);
         void onLoss();
         void onWin();
+        void onGameFinished();
     }
 
     public static class Builder {
