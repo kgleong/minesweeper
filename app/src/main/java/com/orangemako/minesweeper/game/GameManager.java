@@ -77,7 +77,11 @@ public class GameManager{
         return mGame.getMineFlagsRemainingCount();
     }
 
+    public boolean isGameFinished() {
+        return mGame.isGameFinished();
+    }
     // End delegated methods
+
     public interface Listener {
         void updateTimeElapsed(long elapsedTime);
         void updateMineFlagsRemainingCount(int flagsRemaining);

@@ -37,6 +37,7 @@ public class BeveledTileButton extends Button {
         BeveledTileDrawable pressedDrawable = new BeveledTileDrawable(pressedAttributeSet.getColorArray(), pressedAttributeSet.getFillPercent());
 
         drawable.addState(new int[] {android.R.attr.state_pressed}, pressedDrawable);
+        drawable.addState(new int[] {android.R.attr.state_hovered}, pressedDrawable);
         drawable.addState(StateSet.WILD_CARD, normalDrawable);
         return drawable;
     }

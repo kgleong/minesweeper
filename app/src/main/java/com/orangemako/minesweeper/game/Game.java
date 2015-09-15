@@ -175,6 +175,10 @@ public class Game {
         return mElapsedTime + additionalRealTime;
     }
 
+    public boolean isGameFinished() {
+        return mIsGameFinished;
+    }
+
     public int getMineFlagsRemainingCount() {
         return mMineFlagsRemainingCount;
     }

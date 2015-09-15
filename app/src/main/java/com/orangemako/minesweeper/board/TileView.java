@@ -70,6 +70,7 @@ public class TileView extends View {
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Notify the game that the user has performed an action on this tile.
                 mGameBus.post(new Game.TileViewActionEvent(TileView.this, CLICK));
             }
         });
@@ -77,6 +78,7 @@ public class TileView extends View {
         setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
+                // Notify the game that the user has performed an action on this tile.
                 mGameBus.post(new Game.TileViewActionEvent(TileView.this, LONG_CLICK));
 
                 // Return true to consume event.

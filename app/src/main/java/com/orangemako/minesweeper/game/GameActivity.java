@@ -89,9 +89,16 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
             }
         });
 
+        setupStatusImageView();
+    }
+
+    private void setupStatusImageView() {
         float fillPercent = 0.8f;
+        int inPlayOuter = getResources().getColor(R.color.blue_grey_300);
+        int inPlayInner = getResources().getColor(R.color.blue_grey_600);
+
         mStatusImageDrawable = new LevelListDrawable();
-        mStatusImageDrawable.addLevel(0, IN_PLAY_LEVEL, new ConcentricCirclesDrawable(new int[]{Color.BLUE, Color.CYAN}, fillPercent));
+        mStatusImageDrawable.addLevel(0, IN_PLAY_LEVEL, new ConcentricCirclesDrawable(new int[]{inPlayOuter, inPlayInner}, fillPercent));
         mStatusImageDrawable.addLevel(0, WON_LEVEL, new ConcentricCirclesDrawable(new int[]{Color.GREEN, Color.YELLOW}, fillPercent));
         mStatusImageDrawable.addLevel(0, LOST_LEVEL, new ConcentricCirclesDrawable(new int[]{Color.RED, Color.BLACK}, fillPercent));
 
@@ -115,7 +122,7 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
     }
 
     void startTimer() {
-        if(mGameManager != null) {
+        if(mGameManager != null && !mGameManager.isGameFinished()) {
             mGameManager.startTimer();
 
             TimerTask timerTask = new TimerTask() {
