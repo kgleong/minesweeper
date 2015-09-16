@@ -60,9 +60,11 @@ The above graphic includes the following graphical components: `TileView`, `Conc
 * Add `GameState` parcelable object.
 * Support screen orientation.
 * Persist game state to SQLite.
+* Add high score tracking.
 * Add online high score tracking.
 * Add navigation drawer.
 * Allow user to change grid size.
+* Increase test coverage.
 
 ### Libraries used:
 
