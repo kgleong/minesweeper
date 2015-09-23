@@ -7,7 +7,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.view.View;
 
-import com.orangemako.minesweeper.MinesweeperApplication;
+import com.orangemako.minesweeper.MainApplication;
 import com.orangemako.minesweeper.R;
 import com.orangemako.minesweeper.drawable.BeveledTileDrawable;
 import com.orangemako.minesweeper.drawable.ConcentricCirclesDrawable;
@@ -60,7 +60,7 @@ public class TileView extends View {
     }
 
     private void init() throws InvalidArgumentException {
-        mGameBus = MinesweeperApplication.getGameBus();
+        mGameBus = MainApplication.getGameBus();
 
         setupDrawableBackgrounds();
         setupListeners();

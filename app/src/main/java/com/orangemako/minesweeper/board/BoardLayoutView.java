@@ -9,7 +9,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ViewGroup;
 
-import com.orangemako.minesweeper.MinesweeperApplication;
+import com.orangemako.minesweeper.MainApplication;
 import com.orangemako.minesweeper.R;
 import com.orangemako.minesweeper.exceptions.InitializationException;
 import com.orangemako.minesweeper.exceptions.InvalidArgumentException;
@@ -40,7 +40,7 @@ public class BoardLayoutView extends ViewGroup {
     public BoardLayoutView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        mGameBus = MinesweeperApplication.getGameBus();
+        mGameBus = MainApplication.getGameBus();
 
         // Enable drawing for ViewGroup object
         setWillNotDraw(false);

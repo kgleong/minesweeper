@@ -2,7 +2,7 @@ package com.orangemako.minesweeper.game;
 
 import android.util.Log;
 
-import com.orangemako.minesweeper.MinesweeperApplication;
+import com.orangemako.minesweeper.MainApplication;
 import com.orangemako.minesweeper.board.Board;
 import com.orangemako.minesweeper.board.BoardSquare;
 import com.orangemako.minesweeper.exceptions.InitializationException;
@@ -50,7 +50,7 @@ public class Game {
         mTileViewsGrid = new TileView[dimension][dimension];
 
         // Register to receive game state change events
-        MinesweeperApplication.getGameBus().register(this);
+        MainApplication.getGameBus().register(this);
 
         // Publish initial stats
         mGameManager.publishFlagsRemainingCount(mMineFlagsRemainingCount);
@@ -161,7 +161,7 @@ public class Game {
     }
 
     public void unregisterFromEventBus() {
-        MinesweeperApplication.getGameBus().unregister(this);
+        MainApplication.getGameBus().unregister(this);
     }
 
     public long getElapsedTime() {
