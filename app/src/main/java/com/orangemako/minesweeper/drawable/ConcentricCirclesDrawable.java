@@ -16,7 +16,8 @@ public class ConcentricCirclesDrawable extends Drawable {
     static final int DEFAULT_INNER_RING_COLOR = Color.YELLOW;
 
     private float mfillPercent = DEFAULT_FILL_PERCENT;
-    private List<Paint> mRingPaintList = new ArrayList<>();
+    private int[] mRingColorList;
+    private Paint mPaint;
 
     private ConcentricCirclesDrawableState mDrawableState;
 
@@ -33,44 +34,42 @@ public class ConcentricCirclesDrawable extends Drawable {
      */
     public ConcentricCirclesDrawable(int[] ringColorList, Float fillPercent) {
         if(ringColorList == null) {
-            ringColorList = new int[]{DEFAULT_OUTER_RING_COLOR, DEFAULT_INNER_RING_COLOR};
+            mRingColorList = new int[]{DEFAULT_OUTER_RING_COLOR, DEFAULT_INNER_RING_COLOR};
+        }
+        else {
+            mRingColorList = ringColorList;
         }
 
         if(fillPercent != null) {
             mfillPercent = fillPercent;
         }
 
-        setupDrawObjects(ringColorList);
-        saveConstantState(ringColorList);
+        setupDrawObjects();
+        saveConstantState();
     }
 
-    private void saveConstantState(int[] ringColorList) {
+    private void saveConstantState() {
         if(mDrawableState == null) {
             mDrawableState = new ConcentricCirclesDrawableState();
             mDrawableState.mfillPercent = mfillPercent;
-            mDrawableState.mRingColorList = ringColorList;
+            mDrawableState.mRingColorList = mRingColorList;
         }
     }
 
-    private void setupDrawObjects(int[] ringColorList) {
-        for (int ringColor : ringColorList) {
-            Paint ringPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            ringPaint.setStyle(Paint.Style.FILL);
-            ringPaint.setColor(ringColor);
-
-            mRingPaintList.add(ringPaint);
-        }
+    private void setupDrawObjects() {
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setStyle(Paint.Style.FILL);
     }
 
     @Override
     public void draw(Canvas canvas) {
         Rect bounds = getBounds();
 
-        float interval = mfillPercent/ mRingPaintList.size();
+        float interval = mfillPercent / mRingColorList.length;
 
-        for(int i = 0; i < mRingPaintList.size(); i++) {
-            Paint ringPaint = mRingPaintList.get(i);
-            drawCenteredCircle(bounds, mfillPercent - (i * interval), canvas, ringPaint);
+        for(int i = 0; i < mRingColorList.length; i++) {
+            mPaint.setColor(mRingColorList[i]);
+            drawCenteredCircle(bounds, mfillPercent - (i * interval), canvas, mPaint);
         }
     }
 
@@ -81,16 +80,12 @@ public class ConcentricCirclesDrawable extends Drawable {
 
     @Override
     public void setAlpha(int alpha) {
-        for(Paint paint : mRingPaintList) {
-            paint.setAlpha(alpha);
-        }
+        mPaint.setAlpha(alpha);
     }
 
     @Override
     public void setColorFilter(ColorFilter colorFilter) {
-        for(Paint paint : mRingPaintList) {
-            paint.setColorFilter(colorFilter);
-        }
+        mPaint.setColorFilter(colorFilter);
     }
 
     @Override

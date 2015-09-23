@@ -29,11 +29,7 @@ public class BeveledTileDrawable extends Drawable {
     private float mFillPercent = DEFAULT_FILL_PERCENT;
 
     private int[] mColorList;
-    private Paint mInnerRectPaint;
-    private Paint mTopPaint;
-    private Paint mLeftPaint;
-    private Paint mBottomPaint;
-    private Paint mRightPaint;
+    private Paint mPaint;
 
     private Path mTopBevelPath;
     private Path mLeftBevelPath;
@@ -64,32 +60,9 @@ public class BeveledTileDrawable extends Drawable {
     }
 
     private void setupDrawObjects() {
-        mInnerRectPaint = new Paint();
-        mInnerRectPaint.setColor(mColorList[INNER_RECT_COLOR_INDICE]);
-
-        mLeftPaint = new Paint();
-        mLeftPaint.setColor(mColorList[LEFT_BEVEL_COLOR_INDICE]);
-
-        mTopPaint = new Paint();
-        mTopPaint.setColor(mColorList[TOP_BEVEL_COLOR_INDICE]);
-
-        mRightPaint = new Paint();
-        mRightPaint.setColor(mColorList[RIGHT_BEVEL_COLOR_INDICE]);
-
-        mBottomPaint = new Paint();
-        mBottomPaint.setColor(mColorList[BOTTOM_BEVEL_COLOR_INDICE]);
-
-        List<Paint> paintList = Arrays.asList(
-                mInnerRectPaint,
-                mTopPaint,
-                mLeftPaint,
-                mBottomPaint,
-                mRightPaint);
-
-        for(Paint paint : paintList) {
-            paint.setStyle(Paint.Style.FILL);
-            paint.setAntiAlias(true);
-        }
+        mPaint = new Paint();
+        mPaint.setStyle(Paint.Style.FILL);
+        mPaint.setAntiAlias(true);
 
         mTopBevelPath = new Path();
         mLeftBevelPath = new Path();
@@ -105,7 +78,8 @@ public class BeveledTileDrawable extends Drawable {
         Rect innerRect = createInnerRect(bounds);
 
         // Draw inner rectangle
-        canvas.drawRect(innerRect, mInnerRectPaint);
+        mPaint.setColor(mColorList[INNER_RECT_COLOR_INDICE]);
+        canvas.drawRect(innerRect, mPaint);
 
         // Bounds rect
         float[] topLeft = new float[]{bounds.left, bounds.top};
@@ -121,19 +95,23 @@ public class BeveledTileDrawable extends Drawable {
 
         // Draw left bevel
         setBevelPath(mLeftBevelPath, topLeft, innerTopLeft, innerBottomLeft, bottomLeft);
-        canvas.drawPath(mLeftBevelPath, mLeftPaint);
+        mPaint.setColor(mColorList[LEFT_BEVEL_COLOR_INDICE]);
+        canvas.drawPath(mLeftBevelPath, mPaint);
 
         // Draw top bevel
         setBevelPath(mTopBevelPath, topLeft, topRight, innerTopRight, innerTopLeft);
-        canvas.drawPath(mTopBevelPath, mTopPaint);
+        mPaint.setColor(mColorList[TOP_BEVEL_COLOR_INDICE]);
+        canvas.drawPath(mTopBevelPath, mPaint);
 
         // Draw right bevel
         setBevelPath(mRighBevelPath, innerTopRight, topRight, bottomRight, innerBottomRight);
-        canvas.drawPath(mRighBevelPath, mRightPaint);
+        mPaint.setColor(mColorList[RIGHT_BEVEL_COLOR_INDICE]);
+        canvas.drawPath(mRighBevelPath, mPaint);
 
         // Draw bottom bevel
         setBevelPath(mBottomBevelPath, innerBottomLeft, innerBottomRight, bottomRight, bottomLeft);
-        canvas.drawPath(mBottomBevelPath, mBottomPaint);
+        mPaint.setColor(mColorList[BOTTOM_BEVEL_COLOR_INDICE]);
+        canvas.drawPath(mBottomBevelPath, mPaint);
     }
 
     private Rect createInnerRect(Rect bounds) {
