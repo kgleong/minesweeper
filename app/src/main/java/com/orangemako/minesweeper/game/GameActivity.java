@@ -12,6 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.orangemako.minesweeper.R;
+import com.orangemako.minesweeper.api.FinanceService;
+import com.orangemako.minesweeper.api.StockQuoteResponse;
 import com.orangemako.minesweeper.board.Board;
 import com.orangemako.minesweeper.board.BoardLayoutView;
 import com.orangemako.minesweeper.drawable.ConcentricCirclesDrawable;
@@ -21,6 +23,10 @@ import java.util.TimerTask;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 public class GameActivity extends AppCompatActivity implements GameManager.Listener {
@@ -50,6 +56,21 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
 
         setupViews();
         setupGame();
+
+        RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint("http://query.yahooapis.com/v1/public/yql").build();
+        FinanceService financeService = restAdapter.create(FinanceService.class);
+        financeService.getStockQuote(new Callback<StockQuoteResponse>() {
+            @Override
+            public void success(StockQuoteResponse s, Response response) {
+                s.toString();
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                error.toString();
+            }
+        });
     }
 
     private void setupGame() {
