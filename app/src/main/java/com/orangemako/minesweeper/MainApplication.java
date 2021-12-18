@@ -23,6 +23,6 @@ public class MainApplication extends Application {
 
     @Override
     public void onCreate() {
-        mApplicationInstance = this;
+        mApplicationInstance = thisttr;
     }
 }
